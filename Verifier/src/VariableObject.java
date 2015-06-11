@@ -3,3 +3,5 @@
  */
 public class VariableObject {
 }
+
+// this is git test
