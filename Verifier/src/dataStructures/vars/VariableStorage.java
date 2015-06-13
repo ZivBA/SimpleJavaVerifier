@@ -7,12 +7,15 @@ import java.util.HashMap;
  */
 public class VariableStorage {
 
+	// Data Members
+
 	private HashMap<String, VariableObject> varStore;
 
 	public VariableStorage() {
 		HashMap<String, VariableObject> varStore = new HashMap<>();
-
 	}
+
+	// Methods
 
 	/**
 	 * query the DB for a variable name. returns NULL if not present.
@@ -31,6 +34,7 @@ public class VariableStorage {
 	 * @return
 	 */
 	public VariableObject addVar(VariableObject var) {
+		// TODO if trying to add a variable and the name already exists throw exception
 		if (varStore.containsKey(var.getName())) {
 			return varStore.get(var.getName());
 		}
