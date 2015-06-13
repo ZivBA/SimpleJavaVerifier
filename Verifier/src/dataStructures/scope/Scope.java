@@ -16,6 +16,8 @@ public class Scope {
 	private String type;
 	private String conditions;
 
+	//TODO - create constructor for Scope. not sure yet how to handle this.
+	
 	/**
 	 * simple contain check for the Scope level - does it contain a variable "name".
 	 *
