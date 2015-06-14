@@ -2,52 +2,75 @@ package dataStructures.scope;
 
 import dataStructures.vars.VariableObject;
 import dataStructures.vars.VariableStorage;
+import parsing.RegexDepot;
 import parsing.exceptions.DuplicateAssignmentException;
+import parsing.exceptions.InvalidScopeException;
 
-import java.lang.Enum;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Scanner;
+import java.util.regex.Matcher;
 
 /**
  * Created by rooty on 6/11/15.
  */
 public class Scope {
 
-	public Enum Types{ // TODO get enums down, maybe get the name from the parser?
-		METHOD,
-		WHILE,
-		IF;
-
-
-	}
-
 	// Data Members
-
 	private final VariableStorage varStore = new VariableStorage();
+	private final Scanner sourceFile;
 	private Scope parent;
 	private ArrayList<Scope> children;
 	private String type;
 	private String conditions;
 
-	// Constructor
-	//TODO - create constructor for Scope. not sure yet how to handle this.
-
-	public Scope(Scope parent, String type){ // Constructor for method w/o parameters
+	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException { // Constructor for method
+	// w/o parameters
 		// TODO Check for legal types (void method, if, while)
-		this.type = type;
+		this.sourceFile = sourceFile;
+		this.type = checkType();
 		this.parent = parent;
+
+		addMembers();
+
+
 	}
 
-	public Scope(Scope parent, String type, ArrayList<VariableObject var> parameters){
-		// check for legal type as above
-		this.type = type;
-		this.parent = parent;
-		// add parameters vars to the store if scope is method
-		if (type.equals(Types.METHOD)) {
-			for (VariableObject var : paramaters) {
-				addVar(var);
-			}
-			// TODO is there anything special for a scope of type WHILE/IF?
+	private void addMembers() {
+		String currentLine;
+		while (sourceFile.hasNextLine()) {
+
+			currentLine = sourceFile.nextLine();
+
+			Matcher varMatch = RegexDepot.VAR_PATTERN.matcher(currentLine);
+			Matcher varValue = RegexDepot.varValue.matcher(currentLine);
+
+			Matcher methodDeclarationMatcher = METHOD_PATTERN.matcher(currentLine);
+
+			if (variableDeclarationMatcher.matches())
+				variableDeclarationParse(variableDeclarationMatcher);
+
+			else if (variableAssignementMatcher.matches())
+				variableAssignementParse(variableAssignementMatcher);
+
+			else if (methodDeclarationMatcher.matches()) {
+				Method newMethod = methodDeclarationParse(methodDeclarationMatcher);
+				skipMethodBlock(newMethod);
+			} else
+				throw new ParserException("ERROR: not a member line");
 		}
+	}
+
+	private String checkType() throws InvalidScopeException {
+		String firstLine = sourceFile.nextLine();
+		Matcher scopeStart = RegexDepot.SCOPE_PATTERN.matcher(firstLine);
+
+		if (!scopeStart.matches()) {
+			throw new parsing.exceptions.InvalidScopeException(firstLine);
+		}
+
+		return scopeStart.group();
+
 	}
 
 	/**
@@ -69,12 +92,18 @@ public class Scope {
 	 * @throws DuplicateAssignmentException
 	 */
 	public VariableObject addVar(VariableObject var) throws DuplicateAssignmentException {
-		VariableObject tempVar = varStore.getVar(var.getName());
-		if (tempVar != null) {
-			throw new parsing.exceptions.DuplicateAssignmentException(var, tempVar);
-		} else {
-			return varStore.addVar(var);
-		}
+
+		return varStore.addVar(var);
+
+	}
+
+	// enum with lowercase 'e' not uppercase 'E' - differnt decleration.
+	public enum Types { // TODO get enums down, maybe get the name from the parser?
+		METHOD,
+		WHILE,
+		IF
+
+
 	}
 
 }

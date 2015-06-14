@@ -1,5 +1,7 @@
 package dataStructures.vars;
 
+import parsing.exceptions.DuplicateAssignmentException;
+
 import java.util.HashMap;
 
 /**
@@ -33,10 +35,10 @@ public class VariableStorage {
 	 * @param var
 	 * @return
 	 */
-	public VariableObject addVar(VariableObject var) {
+	public VariableObject addVar(VariableObject var) throws DuplicateAssignmentException {
 		// TODO if trying to add a variable and the name already exists throw exception
 		if (varStore.containsKey(var.getName())) {
-			return varStore.get(var.getName());
+			throw new parsing.exceptions.DuplicateAssignmentException(var);
 		}
 
 		return varStore.put(var.getName(), var);

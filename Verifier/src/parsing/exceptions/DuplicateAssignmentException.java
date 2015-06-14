@@ -8,7 +8,7 @@ import dataStructures.vars.VariableObject;
 public class DuplicateAssignmentException extends Throwable {
 	public String errorMsg;
 
-	public DuplicateAssignmentException(VariableObject var, VariableObject tempVar) {
+	public DuplicateAssignmentException(VariableObject var) {
 		errorMsg = "Tried to assign " + var.getType() + " to variable " + var.getName() + "but it already " +
 				"exists " +
 				"in this scope as: " + tempVar.getType();
