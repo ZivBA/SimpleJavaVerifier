@@ -58,7 +58,7 @@ public class Scope {
 				skipMethodBlock(newMethod);
 			} else
 				throw new ParserException("ERROR: not a member line");
-		}
+		} // TODO remove this test line
 	}
 
 	private String checkType() throws InvalidScopeException {
