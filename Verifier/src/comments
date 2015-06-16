@@ -1,0 +1,30 @@
+
+
+
+#####################################
+Main > SynValid > Make scopes > parse scopes (outside in) > create vars and shit and then valid them
+#####################################
+comments:
+
+Making scopes (after synvalid):
+---------------------------
+put each open bracket's line num in stack, when meet closing bracket, create scope from stack pop until until
+the closing brackets line. create and save scope as temp scope. remove scope lines from scanned file put scope pointer where the open bracket was.
+when meeting next closing bracket, repeat above steps, and set child-parent relations between new scope and temp scope.
+repeat until end.
+remaining lines are main scope (has no parent).
+
+
+
+synvalid checks:
+---------------
+bracket matcher
+curly bracket matcher (may end line)
+semicolon (line end)
+
+
+Parser:
+----------
+parser will make sure all types, names and assignments are valid (using regex) and logics.
+when parsing:
+parse all except methods, point to array that holds the methods to parse and parse them at end.

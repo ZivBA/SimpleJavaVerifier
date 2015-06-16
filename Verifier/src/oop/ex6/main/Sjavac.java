@@ -14,21 +14,19 @@ import java.util.Scanner;
  */
 public class Sjavac {
 
-	private static final Scope FIRST_SCOPE_HAS_NO_PARENT = null;
 	private static final int VALID_ARGUMENTS = 1;
 
 	public static void main(String[] args) {
 		// number of arguments check
 		try {
-			if (args.length != VALID_ARGUMENTS) {
-				throw new InvalidFileException();
+			if (args.length != VALID_ARGUMENTS) { // TODO check if suffix equals .sjava
+				throw new InvalidFileException(); // TODO instead of throw, System.err.ptrln
 			}
 		} catch (InvalidFileException e) {
 			// exit file, print 2 TODO maybe not try/catch?
 			e.printErrorMessage();
 		}
 
-		Scanner sourceScanner;
 
 		File sourceFile = new File(args[0]);
 
@@ -37,8 +35,8 @@ public class Sjavac {
 		}
 
 		try {
-			sourceScanner = Parser.cleanFile(sourceFile);
-			Scope mainScope = new Scope(sourceScanner, FIRST_SCOPE_HAS_NO_PARENT);
+			Scanner sourceScanner = Parser.cleanFile(sourceFile);
+			Scope mainScope = new Scope(sourceScanner, null);
 		} catch (FileNotFoundException | InvalidScopeException e) {
 			// kill program?
 		}
