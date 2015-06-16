@@ -97,7 +97,6 @@ public class Scope {
 
 	}
 
-	// enum with lowercase 'e' not uppercase 'E' - differnt decleration.
 	public enum Types { // TODO get enums down, maybe get the name from the parser?
 		METHOD,
 		WHILE,

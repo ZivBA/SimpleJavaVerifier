@@ -7,13 +7,13 @@ import java.util.regex.Pattern;
  */
 public class RegexDepot {
 
-	public final static Pattern SCOPE_PATTERN = Pattern.compile("void|if|while");
-	public final static String VAR_NAME = " ?[a-zA-Z]+[\\w]*|[_][\\w]+";
+	public final static String VAR_NAME = " ?[a-zA-Z]+[\\w]*|[_][\\w]+"; // TODO why is there a space here in the beginning?
 	public final static String VAR_VALUE = "(" + VAR_NAME + ") ?= ?(.+)";
 
+	public final static Pattern SCOPE_PATTERN = Pattern.compile("void|if|while");
 	public final static Pattern VAR_PATTERN = Pattern.compile(VAR_NAME);
 	public final static Pattern METHOD_DECLERATION =
-			Pattern.compile("(final )?(int|double|String|boolean|char) (" + VAR_NAME + ")");
+			Pattern.compile("(final )?(int|double|String|boolean|char) (" + VAR_NAME + ")"); // TODO did you mean to put scope pattern in here?
 	public final static Pattern VAR_DECLERATION =
 			Pattern.compile("(final )?(int|double|String|boolean|char) ([^;]+);");
 	public final static Pattern VAR_ASSIGN = Pattern.compile(VAR_VALUE + " ?;");

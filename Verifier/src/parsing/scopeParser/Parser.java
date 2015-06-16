@@ -20,7 +20,7 @@ public class Parser {
 		Scanner tempScan = new Scanner(sourceFile);
 		//return a string representation of the scanned file
 		String stringFile = tempScan.useDelimiter("\\A").next();
-		//delte all the legal comment from the file
+		//delete all the legal comment from the file
 		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
 		//replace all the white space except the line skipping
 		stringFile = stringFile.replaceAll("[^\\S\n]+", " ");
