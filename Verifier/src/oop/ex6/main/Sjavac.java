@@ -2,6 +2,7 @@ package oop.ex6.main;
 
 import dataStructures.scope.Scope;
 import parsing.exceptions.InvalidScopeException;
+import parsing.exceptions.syntaxException;
 import parsing.scopeParser.Parser;
 
 import java.io.File;
@@ -47,7 +48,7 @@ public class Sjavac {
 			System.err.println(IO_EXCEPTION);
 			System.out.println( e.getMessage() );
 
-		} catch (InvalidScopeException e) {
+		} catch (syntaxException | InvalidScopeException e) {
 			System.err.println(INVALID_FILE);
 			System.out.println(e.getMessage());
 		}
