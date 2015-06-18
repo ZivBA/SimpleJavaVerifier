@@ -36,7 +36,7 @@ public class Sjavac {
 					System.out.println(VALID_FILE);
 				}
 
-				String validatedSource = parsing.syntax.syntaxValidator.validate(sourceFile);
+				Scanner validatedSource = parsing.syntax.syntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
 
 			}

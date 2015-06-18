@@ -16,26 +16,26 @@ public class syntaxValidator {
 
 
 	// regex expressions:
-	// TODO should these have modifiers? Should we Enum the strings?
-	protected Pattern scopeOpen = Pattern.compile("\\{");
-	protected Pattern scopeClose = Pattern.compile("\\}");
-	protected Pattern bracketOpen = Pattern.compile("\\("); // TODO check that these are legal
-	protected Pattern bracketClose = Pattern.compile("\\)");
-	protected Pattern semicolonEnd = Pattern.compile(";");
+//	protected Pattern scopeOpen = Pattern.compile("\\{");
+//	protected Pattern scopeClose = Pattern.compile("\\}");
+//	protected Pattern bracketOpen = Pattern.compile(".+\\("); // TODO check that these are legal
+//	protected Pattern bracketClose = Pattern.compile("\\)");
+//	protected Pattern semicolonEnd = Pattern.compile(".+;");
+	private String bracketOpen = "(";
 
 
-	public static String validate(File source) throws FileNotFoundException, syntaxException {
 
-		String parsedSource = cleanFile(source);
+	public static Scanner validate(File source) throws FileNotFoundException, syntaxException {
+		Scanner sourceFile = new Scanner(source);
+		sourceFile = cleanFile(sourceFile);
 
 		// TODO do acutal validation
 
-		return parsedSource;
+		return sourceFile;
 
 	}
 
-	private static String cleanFile(File source) throws FileNotFoundException, syntaxException {
-		Scanner sourceFile = new Scanner(source);
+	private static Scanner cleanFile(Scanner sourceFile) throws FileNotFoundException, syntaxException {
 		//return a string representation of the scanned file
 		String stringFile = sourceFile.useDelimiter("\\A").next();
 		//delete all the legal comment from the file
@@ -47,25 +47,28 @@ public class syntaxValidator {
 		stringFile = stringFile.replaceAll("\n+", "\n");
 		//clean all the white space at the beginning and the end of the file
 		stringFile = stringFile.trim();
-
-		return stringFile;
+		return sourceFile = new Scanner(stringFile);
 	}
 
-	private void searchForMissingSyntax() {
+	private void searchForMissingSyntax(Scanner sourceFile) {
    /* add stack for curlybrackets, brackets
    Go over each line, for each line, if meet void/if/while, search for brackets, after, search for curly
    opener, remember to search for curly closer. if line dosent end with any curly, search for ;.
     */
-		Stack<String> brackets = new Stack<>();
-		Stack<String> curlyBrackets = new Stack<>();
 
 		String currentLine;
+		int bracketCounter = 0;
+		int curlyBracketCounter = 0;
 		while (sourceFile.hasNextLine()) {
 			currentLine = sourceFile.nextLine();
-			Matcher matchOpenBracket = bracketOpen.matcher(currentLine);
-			if (matchOpenBracket.matches()) {
+
+			// check brackets
+			int indexOfBracket = 0;
+			while(currentLine.indexOf(bracketOpen, indexOfBracket) != -1){
+				bracketCounter++;
 
 			}
+
 		}
 	}
 
