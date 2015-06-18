@@ -5,37 +5,48 @@ import parsing.exceptions.syntaxException;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
-import java.util.Stack;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Created by rooty on 6/11/15.
+ * Validator for checking that the file has legal syntax written on it.
+ * The syntax that is checked are the different bracket types and the semicolon symbol.
  */
 public class syntaxValidator {
 
+	// Constants
+	/**
+	 * The chars to check in the validator
+	 */
+	private static final char BRACKET_OPEN = '(';
+	private static final char BRACKET_CLOSE = ')';
+	private static final char CURLY_OPEN = '{';
+	private static final char CURLY_CLOSE = '}';
+	private static final char SEMICOLON_END = ';';
 
-	// regex expressions:
-//	protected Pattern scopeOpen = Pattern.compile("\\{");
-//	protected Pattern scopeClose = Pattern.compile("\\}");
-//	protected Pattern bracketOpen = Pattern.compile(".+\\("); // TODO check that these are legal
-//	protected Pattern bracketClose = Pattern.compile("\\)");
-//	protected Pattern semicolonEnd = Pattern.compile(".+;");
-	private String bracketOpen = "(";
 
-
-
+	/**
+	 * Static method for calling for the validator from outside.
+	 * Creates the scanner for the file, cleans it from characters that dont need to be checked,
+	 * checks if there were any illegal syntax entries and throws exception if needed.
+	 *
+	 * @param source the source file to validate
+	 * @return Scanner object composing the file if it is legal
+	 * @throws FileNotFoundException if there is an I/O problem with file
+	 * @throws syntaxException       if there is illegal syntax in the file
+	 */
 	public static Scanner validate(File source) throws FileNotFoundException, syntaxException {
 		Scanner sourceFile = new Scanner(source);
 		sourceFile = cleanFile(sourceFile);
-
-		// TODO do acutal validation
-
+		searchForMissingSyntax(sourceFile);
 		return sourceFile;
-
 	}
 
-	private static Scanner cleanFile(Scanner sourceFile) throws FileNotFoundException, syntaxException {
+	/**
+	 * Cleans the file from any comments, redundant white spaces and line skips.
+	 * @param sourceFile the Scanner composing the file to be cleaned.
+	 * @return Scanner composing the file after cleaning.
+	 * @throws FileNotFoundException if there is an I/O problem with the file.
+	 */
+	private static Scanner cleanFile(Scanner sourceFile) throws FileNotFoundException {
 		//return a string representation of the scanned file
 		String stringFile = sourceFile.useDelimiter("\\A").next();
 		//delete all the legal comment from the file
@@ -47,29 +58,54 @@ public class syntaxValidator {
 		stringFile = stringFile.replaceAll("\n+", "\n");
 		//clean all the white space at the beginning and the end of the file
 		stringFile = stringFile.trim();
-		return sourceFile = new Scanner(stringFile);
+		return new Scanner(stringFile);
 	}
 
-	private void searchForMissingSyntax(Scanner sourceFile) {
-   /* add stack for curlybrackets, brackets
-   Go over each line, for each line, if meet void/if/while, search for brackets, after, search for curly
-   opener, remember to search for curly closer. if line dosent end with any curly, search for ;.
-    */
-
+	/**
+	 * Run over each line in the file and make sure syntax symbols are legal and in correct place in line.
+	 * Round brackets need to be balanced for each line.
+	 * Opening curly bracket and semicolon have to be at the end of line.
+	 * Closing curly bracket has to be the only character in its own line.
+	 * @param sourceFile the file for syntax checking.
+	 * @throws syntaxException if there is any illegal syntax in place.
+	 */
+	private static void searchForMissingSyntax(Scanner sourceFile) throws syntaxException {
 		String currentLine;
-		int bracketCounter = 0;
 		int curlyBracketCounter = 0;
-		while (sourceFile.hasNextLine()) {
+		while (sourceFile.hasNextLine()) { // run over whole file, line by line
 			currentLine = sourceFile.nextLine();
+			char[] lineAsCharArray = currentLine.toCharArray(); // look at line as char array
 
-			// check brackets
-			int indexOfBracket = 0;
-			while(currentLine.indexOf(bracketOpen, indexOfBracket) != -1){
-				bracketCounter++;
-
+			int bracketCounter = 0;
+			for (int i = 0; i < lineAsCharArray.length; i++) {
+				switch (lineAsCharArray[i]) {
+					case (BRACKET_OPEN):
+						bracketCounter++;
+						break;
+					case (BRACKET_CLOSE):
+						bracketCounter--;
+						break;
+					case (CURLY_OPEN): // may only be last char
+						if (i != lineAsCharArray.length - 1) throw new syntaxException();
+						else curlyBracketCounter++;
+						break;
+					case (CURLY_CLOSE): // has to have its own line
+						if (lineAsCharArray.length != 1) throw new syntaxException();
+						else curlyBracketCounter--;
+						break;
+					case (SEMICOLON_END):
+						if (i != lineAsCharArray.length - 1) throw new syntaxException();
+						break;
+				}
+				if (bracketCounter < 0 || curlyBracketCounter < 0) {
+					throw new syntaxException(); // no opening brackets
+				}
+			} // after running over line, check that brackets are balanced and there is closer
+			char lastChar = lineAsCharArray[lineAsCharArray.length-1];
+			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END){
+				throw new syntaxException();
 			}
-
-		}
+		} // after going over the file, check the curly brackets are balanced.
+		if (curlyBracketCounter != 0) throw new syntaxException();
 	}
-
 }
