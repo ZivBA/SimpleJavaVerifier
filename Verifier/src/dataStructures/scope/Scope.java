@@ -18,13 +18,13 @@ public class Scope {
 
 	// Data Members
 	private final VariableStorage varStore = new VariableStorage();
-	private final Scanner sourceFile;
+	private String sourceFile;
 	private Scope parent;
 	private ArrayList<Scope> children;
 	private String type;
 	private String conditions;
 
-	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException {
+	public Scope(String sourceFile, Scope parent) throws InvalidScopeException {
 		// TODO Check for legal types (void method, if, while)
 		this.sourceFile = sourceFile;
 		this.type = checkType();

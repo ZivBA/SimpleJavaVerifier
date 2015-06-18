@@ -36,9 +36,9 @@ public class Sjavac {
 					System.out.println(VALID_FILE);
 				}
 
-				Scanner sourceScanner = cleanFile(sourceFile);
-				parsing.syntax.syntaxValidator.validate(sourceScanner);
-				Scope mainScope = new Scope(sourceScanner, null);
+				String sourceString= cleanFile(sourceFile);
+				parsing.syntax.syntaxValidator.validate(sourceString);
+				Scope mainScope = new Scope(sourceString, null);
 
 			}
 
@@ -54,7 +54,7 @@ public class Sjavac {
 		}
 	}
 
-	public static Scanner cleanFile(File sourceFile) throws IOException {
+	public static String cleanFile(File sourceFile) throws IOException {
 		Scanner tempScan = new Scanner(sourceFile);
 		//return a string representation of the scanned file
 		String stringFile = tempScan.useDelimiter("\\A").next();
@@ -69,6 +69,6 @@ public class Sjavac {
 		stringFile = stringFile.trim();
 
 		tempScan.close();
-		return new Scanner(stringFile);
+		return stringFile;
 	}
 }
