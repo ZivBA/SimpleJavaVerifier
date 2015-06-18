@@ -1,13 +1,13 @@
 package oop.ex6.main;
 
+import java.io.IOException;
+
 /**
  * Created by user on 6/16/2015.
  */
-public class InvalidFileException extends Throwable {
-	protected static final String FILE_EXCEPTION_PRINT = "2";
+public class InvalidFileException extends IOException {
 
-	protected void printErrorMessage(){
-		System.err.println(FILE_EXCEPTION_PRINT);
+	public InvalidFileException(String detailMessage) {
+		super(detailMessage);
 	}
-
 }

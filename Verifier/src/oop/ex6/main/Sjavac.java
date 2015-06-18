@@ -15,34 +15,59 @@ import java.util.Scanner;
 public class Sjavac {
 
 	private static final int VALID_ARGUMENTS = 1;
+	// all string constants for the man program.
+	private static final String VALID_EXTENSION = ".sjava", INVALID_FILE = "1", VALID_FILE = "0",
+			IO_EXCEPTION = "2";
 
 	public static void main(String[] args) {
-		// number of arguments check
+		// added number of arguments check
+		// merged all tries to the same block, catch all applicable exceptions in the same place and
+		// process accordingly.
 		try {
-			if (args.length != VALID_ARGUMENTS) { // TODO check if suffix equals .sjava
-				throw new InvalidFileException(); // TODO instead of throw, System.err.ptrln
+			if (args.length != VALID_ARGUMENTS || !args[0].endsWith(VALID_EXTENSION)) {
+				System.err.println(INVALID_FILE);
+
+			}else {
+
+				File sourceFile = new File(args[0]);
+
+				if (sourceFile.length() == 0) {
+					System.out.println(VALID_FILE);
+				}
+
+				Scanner sourceScanner = cleanFile(sourceFile);
+				parsing.syntax.syntaxValidator.validate(sourceScanner);
+				Scope mainScope = new Scope(sourceScanner, null);
+
 			}
-		} catch (InvalidFileException e) {
-			// exit file, print 2 TODO maybe not try/catch?
-			e.printErrorMessage();
+
+			// for each exception type print the relevant number and message.
+		} catch (IOException e) {
+
+			System.err.println(IO_EXCEPTION);
+			System.out.println( e.getMessage() );
+
+		} catch (InvalidScopeException e) {
+			System.err.println(INVALID_FILE);
+			System.out.println(e.getMessage());
 		}
-
-
-		File sourceFile = new File(args[0]);
-
-		if (sourceFile.length() == 0) {
-			//kill program? or exception prints 2? or 1? empty file is valid...
-		}
-
-		try {
-			Scanner sourceScanner = Parser.cleanFile(sourceFile);
-			Scope mainScope = new Scope(sourceScanner, null);
-		} catch (FileNotFoundException | InvalidScopeException e) {
-			// kill program?
-		}
-
-
 	}
 
+	public static Scanner cleanFile(File sourceFile) throws IOException {
+		Scanner tempScan = new Scanner(sourceFile);
+		//return a string representation of the scanned file
+		String stringFile = tempScan.useDelimiter("\\A").next();
+		//delete all the legal comment from the file
+		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
+		//replace all the white space except the line skipping
+		stringFile = stringFile.replaceAll("[^\\S\n]+", " ");
+		//replace one or more line skipping by one line skipping
+		stringFile = stringFile.replaceAll(" ?\n+ ?", "\n");
+		stringFile = stringFile.replaceAll("\n+", "\n");
+		//clean all the white space at the beginning and the end of the file
+		stringFile = stringFile.trim();
 
+		tempScan.close();
+		return new Scanner(stringFile);
+	}
 }

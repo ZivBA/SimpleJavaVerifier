@@ -24,41 +24,16 @@ public class Scope {
 	private String type;
 	private String conditions;
 
-	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException { // Constructor for method
-	// w/o parameters
+	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException {
 		// TODO Check for legal types (void method, if, while)
 		this.sourceFile = sourceFile;
 		this.type = checkType();
 		this.parent = parent;
 
-		addMembers();
-
-
 	}
 
 	private void addMembers() {
-		String currentLine;
-		while (sourceFile.hasNextLine()) {
 
-			currentLine = sourceFile.nextLine();
-
-			Matcher varMatch = RegexDepot.VAR_PATTERN.matcher(currentLine);
-			Matcher varValue = RegexDepot.varValue.matcher(currentLine);
-
-			Matcher methodDeclarationMatcher = METHOD_PATTERN.matcher(currentLine);
-
-			if (variableDeclarationMatcher.matches())
-				variableDeclarationParse(variableDeclarationMatcher);
-
-			else if (variableAssignementMatcher.matches())
-				variableAssignementParse(variableAssignementMatcher);
-
-			else if (methodDeclarationMatcher.matches()) {
-				Method newMethod = methodDeclarationParse(methodDeclarationMatcher);
-				skipMethodBlock(newMethod);
-			} else
-				throw new ParserException("ERROR: not a member line");
-		} // TODO remove this test line
 	}
 
 	private String checkType() throws InvalidScopeException {

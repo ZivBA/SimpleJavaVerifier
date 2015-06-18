@@ -1,4 +1,5 @@
 package parsing.syntax;
+import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.lang.Enum;
@@ -26,6 +27,10 @@ public class syntaxValidator {
 	protected Pattern intValue = Pattern.compile("-?\\d+"); // TODO add other varNames to values?
 	protected Pattern doubleValue = Pattern.compile("-?\\d+(\\.?\\d)"); // is this okay?
 	protected Pattern booleanValue = Pattern.compile("true || false || \\d+");
+
+	public static void validate(Scanner sourceScanner) throws parsing.exceptions.syntaxException{
+
+	}
 	//protected Pattern stringValue = Pattern.compile("\\"\\S")
 
 	/*

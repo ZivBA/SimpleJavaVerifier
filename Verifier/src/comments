@@ -1,5 +1,4 @@
-
-
+18/06 - see comments at end.
 
 #####################################
 Main > SynValid > Make scopes > parse scopes (outside in) > create vars and shit and then valid them
@@ -28,3 +27,13 @@ Parser:
 parser will make sure all types, names and assignments are valid (using regex) and logics.
 when parsing:
 parse all except methods, point to array that holds the methods to parse and parse them at end.
+
+-------------------------------------------------------------------------------------------------------------
+notes:
+
+made changes to the way exceptions are created, specific message is sent to the super() constructor to
+allow getting the error message via Throwable's getMessage() method.
+
+changed the main file to be more compact - all tries are in the same clause, catches would be set by error
+type (all "1" errors will be caught in one clause, all "2" in the second, etc).
+
