@@ -1,5 +1,7 @@
 package parsing.syntax;
 
+import parsing.exceptions.syntaxException;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Scanner;
@@ -22,9 +24,9 @@ public class syntaxValidator {
 	protected Pattern semicolonEnd = Pattern.compile(";");
 
 
-	public static String syntaxValidator(Scanner sourceFile) throws FileNotFoundException {
+	public static String validate(File source) throws FileNotFoundException, syntaxException {
 
-		String parsedSource = cleanFile(sourceFile);
+		String parsedSource = cleanFile(source);
 
 		// TODO do acutal validation
 
@@ -32,7 +34,8 @@ public class syntaxValidator {
 
 	}
 
-	private static String cleanFile(Scanner sourceFile) throws FileNotFoundException {
+	private static String cleanFile(File source) throws FileNotFoundException, syntaxException {
+		Scanner sourceFile = new Scanner(source);
 		//return a string representation of the scanned file
 		String stringFile = sourceFile.useDelimiter("\\A").next();
 		//delete all the legal comment from the file

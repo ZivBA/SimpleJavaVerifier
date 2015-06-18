@@ -36,9 +36,8 @@ public class Sjavac {
 					System.out.println(VALID_FILE);
 				}
 
-				String sourceString= cleanFile(sourceFile);
-				parsing.syntax.syntaxValidator.validate(sourceString);
-				Scope mainScope = new Scope(sourceString, null);
+				String validatedSource = parsing.syntax.syntaxValidator.validate(sourceFile);
+				Scope mainScope = new Scope(validatedSource, null);
 
 			}
 
@@ -54,21 +53,4 @@ public class Sjavac {
 		}
 	}
 
-	public static String cleanFile(File sourceFile) throws IOException {
-		Scanner tempScan = new Scanner(sourceFile);
-		//return a string representation of the scanned file
-		String stringFile = tempScan.useDelimiter("\\A").next();
-		//delete all the legal comment from the file
-		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
-		//replace all the white space except the line skipping
-		stringFile = stringFile.replaceAll("[^\\S\n]+", " ");
-		//replace one or more line skipping by one line skipping
-		stringFile = stringFile.replaceAll(" ?\n+ ?", "\n");
-		stringFile = stringFile.replaceAll("\n+", "\n");
-		//clean all the white space at the beginning and the end of the file
-		stringFile = stringFile.trim();
-
-		tempScan.close();
-		return stringFile;
-	}
 }
