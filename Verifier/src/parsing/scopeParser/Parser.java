@@ -3,6 +3,8 @@
  */
 package parsing.scopeParser;
 
+import dataStructures.scope.Scope;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -11,10 +13,19 @@ import java.util.Scanner;
 
 public class Parser {
 
-	public Parser(ArrayList<String> scope) throws IOException {
+	// recursive call root --> leaves, iterate throughout tree of scopes
+	public static void startParsing(Scope mainScope) {
 
+		for (String line : mainScope.getSrc()){
+			// read line
 
+			// if line is childScope#1
+			startParsing(mainScope.getChild(1));
+		}
 	}
+
+
+	private void variableCheck(Variab)
 
 
 }

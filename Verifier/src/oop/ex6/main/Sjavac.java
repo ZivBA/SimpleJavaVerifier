@@ -38,6 +38,7 @@ public class Sjavac {
 
 				Scanner validatedSource = parsing.syntax.syntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
+				parsing.scopeParser.Parser.startParsing(mainScope);
 
 			}
 

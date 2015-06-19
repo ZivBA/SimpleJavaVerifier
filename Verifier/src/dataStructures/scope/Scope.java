@@ -22,6 +22,8 @@ public class Scope {
 	private ArrayList<String> sourceFile;
 	private Scope parent = null;
 	private ArrayList<Scope> children = new ArrayList<>();
+	private ArrayList<Scope> methods = new ArrayList<>();
+
 	private String type = null;
 	private String conditions = null;
 
@@ -63,6 +65,7 @@ public class Scope {
 			Matcher openBrack = p.matcher(line);
 			Matcher closeBrack = p2.matcher(line);
 
+			// save first line
 			if (openBrack.find()){
 				ArrayList<String> tempArray = new ArrayList<>();
 				int bracketCounter = 1;
@@ -79,8 +82,17 @@ public class Scope {
 						bracketCounter--;
 					}
 				}
+				//insert first line
+				// if (if/while)
+				if(){
+					children.add(new Scope(tempArray,this));
 
-				children.add(new Scope(tempArray,this));
+				}
+				// if method
+				else if(){
+					methods.add(new Scope(tempArray,this));
+
+				}
 			}
 		}
 
@@ -137,5 +149,12 @@ public class Scope {
 
 	}
 
+	public ArrayList<String> getSrc() {
+		return sourceFile;
+	}
+
+	public Scope getChild(int index) {
+		return children.get(index);
+	}
 }
 
