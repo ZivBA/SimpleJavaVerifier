@@ -7,8 +7,10 @@ import parsing.exceptions.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by rooty on 6/11/15.
@@ -18,19 +20,27 @@ public class Scope {
 	// Data Members
 	private final VariableStorage varStore = new VariableStorage();
 	private ArrayList<String> sourceFile;
-	private Scope parent;
-	private ArrayList<Scope> children;
-	private String type;
-	private String conditions;
+	private Scope parent = null;
+	private ArrayList<Scope> children = new ArrayList<>();
+	private String type = null;
+	private String conditions = null;
 
 	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException {
 		// TODO Check for legal types (void method, if, while)
 		this.sourceFile = stringToArray(sourceFile);
-
-		checkType();
 		this.parent = parent;
-		addMembers();
+		scopeInit();
 
+	}
+	public Scope(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
+		this.sourceFile = sourceFile;
+		this.parent = parent;
+		scopeInit();
+	}
+
+	private void scopeInit() throws InvalidScopeException {
+		checkType();
+		recurScopeBuilder();
 	}
 
 	private ArrayList<String> stringToArray(Scanner sourceFile) {
@@ -41,21 +51,37 @@ public class Scope {
 		return tempArr;
 	}
 
-	private void addMembers() {
+	private void recurScopeBuilder() throws InvalidScopeException {
 
-		for (String line : sourceFile) {
+		Pattern p = Pattern.compile("\\{");
+		Pattern p2 = Pattern.compile("\\}");
 
-			Matcher varMatcher = RegexDepot.VARIABLE_DECLARATION_PATTERN.matcher(line);
-			Matcher conditionMatch = RegexDepot.CONDITION_PATTERN.matcher(line);
-			Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(line);
+		Iterator<String> sourceIterator = sourceFile.iterator();
+		while (sourceIterator.hasNext()) {
+			String line = sourceIterator.next();
 
+			Matcher openBrack = p.matcher(line);
+			Matcher closeBrack = p2.matcher(line);
 
+			if (openBrack.find()){
+				ArrayList<String> tempArray = new ArrayList<>();
+				int bracketCounter = 1;
+				while (bracketCounter != 0){
 
+					tempArray.add(sourceFile.remove(sourceFile.indexOf(line)));
+					line = sourceIterator.next();
+					openBrack.reset(line);
+					closeBrack.reset(line);
 
+					if (openBrack.find()){
+						bracketCounter++;
+					}else if (closeBrack.find()){
+						bracketCounter--;
+					}
+				}
 
-
-
-
+				children.add(new Scope(tempArray,this));
+			}
 		}
 
 
@@ -108,14 +134,6 @@ public class Scope {
 	public VariableObject addVar(VariableObject var) throws DuplicateAssignmentException {
 
 		return varStore.addVar(var);
-
-	}
-
-	public enum Types { // TODO get enums down, maybe get the name from the parser?
-		METHOD,
-		WHILE,
-		IF
-
 
 	}
 
