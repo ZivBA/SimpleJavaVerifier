@@ -15,11 +15,11 @@ remaining lines are main scope (has no parent).
 
 
 
-synvalid checks:
+DONE - synvalid checks:
 ---------------
-bracket matcher
-curly bracket matcher (may end line)
-semicolon (line end)
+DONE - bracket matcher
+DONE - curly bracket matcher (may end line)
+DONE - semicolon (line end)
 
 
 Parser:
@@ -37,3 +37,4 @@ allow getting the error message via Throwable's getMessage() method.
 changed the main file to be more compact - all tries are in the same clause, catches would be set by error
 type (all "1" errors will be caught in one clause, all "2" in the second, etc).
 
+Dont forget to close the scanner when we are done with it.
