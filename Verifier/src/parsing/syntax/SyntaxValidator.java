@@ -22,7 +22,7 @@ public class SyntaxValidator {
 	private static final char CURLY_CLOSE = '}';
 	private static final char SEMICOLON_END = ';';
 
-	// Methods
+
 	/**
 	 * Static method for calling for the validator from outside.
 	 * Creates the scanner for the file, cleans it from characters that dont need to be checked,
@@ -58,7 +58,6 @@ public class SyntaxValidator {
 		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
 		//clean all the white space at the beginning and the end of the file
 		stringFile = stringFile.trim();
-		sourceFile.close();
 		return new Scanner(stringFile);
 	}
 
@@ -72,7 +71,6 @@ public class SyntaxValidator {
 	 */
 	private static Scanner searchForMissingSyntax(Scanner sourceFile) throws SyntaxException {
 		String currentLine;
-		String stringFile = sourceFile.useDelimiter("\\A").next();
 		int curlyBracketCounter = 0;
 		while (sourceFile.hasNextLine()) { // run over whole file, line by line
 			currentLine = sourceFile.nextLine();
@@ -106,14 +104,14 @@ public class SyntaxValidator {
 				}
 			} // after running over line, check that brackets are balanced and there is closer
 			char lastChar = lineAsCharArray[lineAsCharArray.length-1];
-			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END){
-				throw new SyntaxException();
 			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
 					CURLY_CLOSE){
 				System.out.println(bracketCounter+" "+lastChar+ " " + currentLine);
-				throw new syntaxException();
+				throw new SyntaxException();
 			}
 		} // after going over the file, check the curly brackets are balanced.
 		if (curlyBracketCounter != 0) throw new SyntaxException();
+		sourceFile.reset();
+		return sourceFile;
 	}
 }
