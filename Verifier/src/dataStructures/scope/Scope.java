@@ -5,6 +5,7 @@ import dataStructures.vars.VariableStorage;
 import parsing.RegexDepot;
 import parsing.exceptions.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
+import sun.applet.Main;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -17,6 +18,7 @@ import java.util.regex.Pattern;
  */
 public class Scope {
 
+	private static final String MAINSCOPE = "Main";
 	// Data Members
 	private final VariableStorage varStore = new VariableStorage();
 	private ArrayList<String> sourceFile;
@@ -27,13 +29,7 @@ public class Scope {
 	private String type = null;
 	private String conditions = null;
 
-	public Scope(Scanner sourceFile, Scope parent) throws InvalidScopeException {
-		// TODO Check for legal types (void method, if, while)
-		this.sourceFile = stringToArray(sourceFile);
-		this.parent = parent;
-		scopeInit();
 
-	}
 	public Scope(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
@@ -43,14 +39,6 @@ public class Scope {
 	private void scopeInit() throws InvalidScopeException {
 		checkType();
 		recurScopeBuilder();
-	}
-
-	private ArrayList<String> stringToArray(Scanner sourceFile) {
-		ArrayList<String> tempArr = new ArrayList<String>();
-		while (sourceFile.hasNextLine()) {
-			tempArr.add(sourceFile.nextLine());
-		}
-		return tempArr;
 	}
 
 	private void recurScopeBuilder() throws InvalidScopeException {
@@ -107,7 +95,10 @@ public class Scope {
 					children.add(new Scope(tempArray,this));
 				}
 				else {
-					throw new InvalidScopeException(firstLine);
+					if (parent!=null) {
+						throw new InvalidScopeException(firstLine);
+					}
+					type = MAINSCOPE;
 				}
 			}
 		}
@@ -127,19 +118,21 @@ public class Scope {
 		if (conditionMatch.find()) {
 			type = firstWord;
 			conditions = conditionMatch.group(2);
-//			sourceFile.remove(0);
+			sourceFile.remove(0);
 		}
 		// is method?
 		else if (methodMatch.find()) {
 			type = firstWord;
 			conditions = methodMatch.group(2);
-//			sourceFile.remove(0);
+			sourceFile.remove(0);
 		}
 		// is else?
 		else if (parent != null) {
 			throw new InvalidScopeException(firstLine);
 		}
 	}
+
+
 
 	/**
 	 * simple contain check for the Scope level - does it contain a variable "name".

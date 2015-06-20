@@ -7,6 +7,7 @@ import parsing.syntax.SyntaxValidator;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -35,7 +36,7 @@ public class Sjavac {
 					System.out.println(VALID_FILE);
 				}
 
-				Scanner validatedSource = SyntaxValidator.validate(sourceFile);
+				ArrayList<String> validatedSource = SyntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
 				parsing.scopeParser.Parser.startParsing(mainScope);
 

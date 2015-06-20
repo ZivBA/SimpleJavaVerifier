@@ -4,6 +4,8 @@ import parsing.exceptions.SyntaxException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Scanner;
 
 /**
@@ -33,11 +35,12 @@ public class SyntaxValidator {
 	 * @throws FileNotFoundException if there is an I/O problem with file
 	 * @throws SyntaxException       if there is illegal syntax in the file
 	 */
-	public static Scanner validate(File source) throws FileNotFoundException, SyntaxException {
+	public static ArrayList<String> validate(File source) throws FileNotFoundException, SyntaxException {
 		Scanner sourceFile = new Scanner(source);
 		sourceFile = cleanFile(sourceFile);
-		sourceFile = searchForMissingSyntax(sourceFile);
-		return sourceFile;
+		ArrayList<String> sourceFileArray = stringToArray(sourceFile);
+		searchForMissingSyntax(sourceFileArray);
+		return sourceFileArray;
 	}
 
 	/**
@@ -69,11 +72,13 @@ public class SyntaxValidator {
 	 * @param sourceFile the file for syntax checking.
 	 * @throws SyntaxException if there is any illegal syntax in place.
 	 */
-	private static Scanner searchForMissingSyntax(Scanner sourceFile) throws SyntaxException {
+	private static void searchForMissingSyntax(ArrayList<String> sourceFile) throws SyntaxException {
+
 		String currentLine;
 		int curlyBracketCounter = 0;
-		while (sourceFile.hasNextLine()) { // run over whole file, line by line
-			currentLine = sourceFile.nextLine();
+		Iterator<String> sourceIter = sourceFile.iterator();
+		while (sourceIter.hasNext()) { // run over whole file, line by line
+			currentLine = sourceIter.next();
 			char[] lineAsCharArray = currentLine.toCharArray(); // look at line as char array
 
 			int bracketCounter = 0;
@@ -111,7 +116,13 @@ public class SyntaxValidator {
 			}
 		} // after going over the file, check the curly brackets are balanced.
 		if (curlyBracketCounter != 0) throw new SyntaxException();
-		sourceFile.reset();
-		return sourceFile;
+	}
+
+	private static ArrayList<String> stringToArray(Scanner sourceFile) {
+		ArrayList<String> tempArr = new ArrayList<String>();
+		while (sourceFile.hasNextLine()) {
+			tempArr.add(sourceFile.nextLine());
+		}
+		return tempArr;
 	}
 }
