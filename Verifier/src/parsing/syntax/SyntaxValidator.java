@@ -1,6 +1,6 @@
 package parsing.syntax;
 
-import parsing.exceptions.syntaxException;
+import parsing.exceptions.SyntaxException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -10,7 +10,7 @@ import java.util.Scanner;
  * Validator for checking that the file has legal syntax written on it.
  * The syntax that is checked are the different bracket types and the semicolon symbol.
  */
-public class syntaxValidator {
+public class SyntaxValidator {
 
 	// Constants
 	/**
@@ -22,7 +22,7 @@ public class syntaxValidator {
 	private static final char CURLY_CLOSE = '}';
 	private static final char SEMICOLON_END = ';';
 
-
+	// Methods
 	/**
 	 * Static method for calling for the validator from outside.
 	 * Creates the scanner for the file, cleans it from characters that dont need to be checked,
@@ -31,9 +31,9 @@ public class syntaxValidator {
 	 * @param source the source file to validate
 	 * @return Scanner object composing the file if it is legal
 	 * @throws FileNotFoundException if there is an I/O problem with file
-	 * @throws syntaxException       if there is illegal syntax in the file
+	 * @throws SyntaxException       if there is illegal syntax in the file
 	 */
-	public static Scanner validate(File source) throws FileNotFoundException, syntaxException {
+	public static Scanner validate(File source) throws FileNotFoundException, SyntaxException {
 		Scanner sourceFile = new Scanner(source);
 		sourceFile = cleanFile(sourceFile);
 		sourceFile = searchForMissingSyntax(sourceFile);
@@ -68,9 +68,9 @@ public class syntaxValidator {
 	 * Opening curly bracket and semicolon have to be at the end of line.
 	 * Closing curly bracket has to be the only character in its own line.
 	 * @param sourceFile the file for syntax checking.
-	 * @throws syntaxException if there is any illegal syntax in place.
+	 * @throws SyntaxException if there is any illegal syntax in place.
 	 */
-	private static Scanner searchForMissingSyntax(Scanner sourceFile) throws syntaxException {
+	private static Scanner searchForMissingSyntax(Scanner sourceFile) throws SyntaxException {
 		String currentLine;
 		String stringFile = sourceFile.useDelimiter("\\A").next();
 		int curlyBracketCounter = 0;
@@ -89,31 +89,31 @@ public class syntaxValidator {
 						break;
 					case (CURLY_OPEN): // may only be last char
 						if (i != lineAsCharArray.length - 1) {
-							throw new syntaxException();
+							throw new SyntaxException();
 						}
 						else curlyBracketCounter++;
 						break;
 					case (CURLY_CLOSE): // has to have its own line
-						if (lineAsCharArray.length != 1) throw new syntaxException();
+						if (lineAsCharArray.length != 1) throw new SyntaxException();
 						else curlyBracketCounter--;
 						break;
 					case (SEMICOLON_END):
-						if (i != lineAsCharArray.length - 1) throw new syntaxException();
+						if (i != lineAsCharArray.length - 1) throw new SyntaxException();
 						break;
 				}
 				if (bracketCounter < 0 || curlyBracketCounter < 0) {
-					throw new syntaxException(); // no opening brackets
+					throw new SyntaxException(); // no opening brackets
 				}
 			} // after running over line, check that brackets are balanced and there is closer
 			char lastChar = lineAsCharArray[lineAsCharArray.length-1];
+			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END){
+				throw new SyntaxException();
 			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
 					CURLY_CLOSE){
 				System.out.println(bracketCounter+" "+lastChar+ " " + currentLine);
 				throw new syntaxException();
 			}
 		} // after going over the file, check the curly brackets are balanced.
-		if (curlyBracketCounter != 0) throw new syntaxException();
-		sourceFile.close();
-		return new Scanner(stringFile);
+		if (curlyBracketCounter != 0) throw new SyntaxException();
 	}
 }

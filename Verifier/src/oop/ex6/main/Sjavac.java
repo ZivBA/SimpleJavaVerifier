@@ -2,11 +2,10 @@ package oop.ex6.main;
 
 import dataStructures.scope.Scope;
 import parsing.exceptions.InvalidScopeException;
-import parsing.exceptions.syntaxException;
-import parsing.scopeParser.Parser;
+import parsing.exceptions.SyntaxException;
+import parsing.syntax.SyntaxValidator;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Scanner;
 
@@ -36,7 +35,7 @@ public class Sjavac {
 					System.out.println(VALID_FILE);
 				}
 
-				Scanner validatedSource = parsing.syntax.syntaxValidator.validate(sourceFile);
+				Scanner validatedSource = SyntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
 				parsing.scopeParser.Parser.startParsing(mainScope);
 
@@ -48,7 +47,7 @@ public class Sjavac {
 			System.err.println(IO_EXCEPTION);
 			System.out.println( e.getMessage() );
 
-		} catch (syntaxException | InvalidScopeException e) {
+		} catch (SyntaxException | InvalidScopeException e) {
 			System.err.println(INVALID_FILE);
 			System.out.println(e.getMessage());
 		}
