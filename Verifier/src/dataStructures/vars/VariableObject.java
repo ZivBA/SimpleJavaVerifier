@@ -7,6 +7,7 @@ public class VariableObject {
 	private final String name;
 	private final String type;
 	private String value;
+	private boolean isFinal;
 
 
 	/**
@@ -15,11 +16,13 @@ public class VariableObject {
 	 * @param name
 	 * @param type
 	 * @param value
+	 * @param isFinal
 	 */
-	public VariableObject(String name, String type, String value) {
+	public VariableObject(String name, String type, String value, Boolean isFinal) {
 		this.name = name;
 		this.type = type;
 		this.value = value;
+		this.isFinal = isFinal;
 	}
 
 	/**
@@ -71,6 +74,15 @@ public class VariableObject {
 
 	public String getName() {
 		return name;
+	}
+
+	/**
+	 * Get if variable is final
+	 *
+	 * @return true if final, else false.
+	 */
+	public boolean isFinal() {
+		return isFinal;
 	}
 
 	//##################################################################################
