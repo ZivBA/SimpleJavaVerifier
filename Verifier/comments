@@ -28,6 +28,17 @@ parser will make sure all types, names and assignments are valid (using regex) a
 when parsing:
 parse all except methods, point to array that holds the methods to parse and parse them at end.
 
+Static class. Generally start from the root > leaves and back out to the root.
+After the scopes have been made, the structure is such that each scope holds its variables and lines for
+the scopes, thus that parsing should be as such:
+1. Start parsing from the top, line by line. Check if the var is contained in the scopes store, else create
+	the var in its store. dont forget to check for var's seperated by comma ','.
+2. When meeting method line, create its var in the store (if its not contained).
+3. When meeting for/while line, go to its scope and start parsing there. when finished (may be recursive),
+	return to the original scope from whence you came.
+4. after finishing parsing the scope, parse its method's scope the it composes (may be recursive),
+	Dont forget to make sure it has 'return;' at the end of scope.
+
 -------------------------------------------------------------------------------------------------------------
 notes:
 

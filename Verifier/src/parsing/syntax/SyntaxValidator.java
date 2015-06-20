@@ -117,7 +117,7 @@ public class SyntaxValidator {
 		} // after going over the file, check the curly brackets are balanced.
 		if (curlyBracketCounter != 0) throw new SyntaxException();
 	}
-
+	//TODO doc!!!!
 	private static ArrayList<String> stringToArray(Scanner sourceFile) {
 		ArrayList<String> tempArr = new ArrayList<String>();
 		while (sourceFile.hasNextLine()) {
