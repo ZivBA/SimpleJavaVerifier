@@ -9,6 +9,7 @@ import sun.applet.Main;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -23,8 +24,8 @@ public class Scope {
 	private final VariableStorage varStore = new VariableStorage();
 	private ArrayList<String> sourceFile;
 	private Scope parent = null;
-	private ArrayList<Scope> children = new ArrayList<>();
-	private ArrayList<Scope> methods = new ArrayList<>();
+	private LinkedList<Scope> children = new LinkedList<>();
+	private LinkedList<Scope> methods = new LinkedList<>();
 
 	private String type = null;
 	private String conditions = null;
@@ -83,23 +84,6 @@ public class Scope {
 
 				//add commented marker for method or condition clause
 				sourceFile.add(positionForMarker,"//"+firstLine.substring(0,line.length()-1));
-
-				Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(firstLine);
-				Matcher ifWhileMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
-				// if method
-				if(methodMatch.matches()){
-					methods.add(new Scope(tempArray, this));
-				}
-				// if (if/while)
-				else if (ifWhileMatch.matches()){
-					children.add(new Scope(tempArray,this));
-				}
-				else {
-					if (parent!=null) {
-						throw new InvalidScopeException(firstLine);
-					}
-					type = MAINSCOPE;
-				}
 			}
 		}
 
@@ -119,14 +103,16 @@ public class Scope {
 			type = firstWord;
 			conditions = conditionMatch.group(2);
 			sourceFile.remove(0);
+			parent.children.addLast(this);
 		}
 		// is method?
 		else if (methodMatch.find()) {
 			type = firstWord;
 			conditions = methodMatch.group(2);
 			sourceFile.remove(0);
-		}
-		// is else?
+			parent.methods.addLast(this);
+			}
+			// is else?
 		else if (parent != null) {
 			throw new InvalidScopeException(firstLine);
 		}
