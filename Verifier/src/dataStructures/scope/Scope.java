@@ -7,10 +7,7 @@ import parsing.exceptions.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
 import sun.applet.Main;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Scanner;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,13 +19,14 @@ public class Scope {
 	private static final String MAINSCOPE = "Main";
 	// Data Members
 	private final VariableStorage varStore = new VariableStorage();
-	private ArrayList<String> sourceFile;
+	private ArrayList<String> sourceFile = new ArrayList<String>();
 	private Scope parent = null;
 	private LinkedList<Scope> children = new LinkedList<>();
 	private LinkedList<Scope> methods = new LinkedList<>();
 
 	private String type = null;
 	private String conditions = null;
+	private String methodName = null;
 
 
 	public Scope(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
@@ -38,8 +36,13 @@ public class Scope {
 	}
 
 	private void scopeInit() throws InvalidScopeException {
+		if (parent==null){
+			sourceFile.add(0," ");
+			sourceFile.add(sourceFile.size()," ");
+		}
 		checkType();
 		recurScopeBuilder();
+		//padd the main scope with spaces to accomodate for scopes that start with a void/if/while
 	}
 
 	private void recurScopeBuilder() throws InvalidScopeException {
@@ -47,8 +50,7 @@ public class Scope {
 		//TODO fix infinite recursion with firstline being a method
 		Pattern p = Pattern.compile("\\{");
 		Pattern p2 = Pattern.compile("\\}");
-
-		Iterator<String> sourceIterator = sourceFile.iterator();
+		ListIterator<String> sourceIterator = sourceFile.listIterator();
 		while (sourceIterator.hasNext()) {
 			String line = sourceIterator.next();
 
@@ -76,14 +78,11 @@ public class Scope {
 				//add final row to temparray
 				tempArray.add(line);
 
-				//get the position of the last line so marker could be inserted there
-				int positionForMarker = sourceFile.indexOf(line);
-
-				//remove last inserted row
-				sourceIterator.remove();
-
 				//add commented marker for method or condition clause
-				sourceFile.add(positionForMarker,"//"+firstLine.substring(0,line.length()-1));
+				sourceIterator.set(firstLine.substring(0, firstLine.indexOf('{')));
+				new Scope(tempArray,this);
+
+
 			}
 		}
 
@@ -100,7 +99,7 @@ public class Scope {
 
 		// is if|while?
 		if (conditionMatch.find()) {
-			type = firstWord;
+			type = conditionMatch.group(1);
 			conditions = conditionMatch.group(2);
 			sourceFile.remove(0);
 			parent.children.addLast(this);
@@ -108,13 +107,17 @@ public class Scope {
 		// is method?
 		else if (methodMatch.find()) {
 			type = firstWord;
+			methodName = methodMatch.group(1);
 			conditions = methodMatch.group(2);
 			sourceFile.remove(0);
 			parent.methods.addLast(this);
 			}
 			// is else?
-		else if (parent != null) {
-			throw new InvalidScopeException(firstLine);
+		else{
+			if (parent != null) {
+				throw new InvalidScopeException(firstLine);
+			}
+
 		}
 	}
 
@@ -150,6 +153,16 @@ public class Scope {
 
 	public Scope getChild(int index) {
 		return children.get(index);
+	}
+	public LinkedList<Scope> getAllChildren(){
+		return children;
+	}
+	public LinkedList<Scope> getAllMethods(){
+		return methods;
+	}
+
+	public String toString(){
+		return "Type: "+ type+ ", Name: "+ methodName;
 	}
 }
 

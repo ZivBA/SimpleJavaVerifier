@@ -38,6 +38,7 @@ public class Sjavac {
 
 				ArrayList<String> validatedSource = SyntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
+				printScopeTree(mainScope,0);
 				parsing.scopeParser.Parser.startParsing(mainScope);
 
 			}
@@ -54,4 +55,23 @@ public class Sjavac {
 		}
 	}
 
+	private static void printScopeTree(Scope root, int depth){
+		for (int i=0; i<depth+1; i++){
+			System.out.print("	");
+		}
+//		System.out.println("Scope at depth "+depth+": "+ root);
+		for (Scope child : root.getAllChildren()){
+			for (int i=0; i<depth+2; i++){
+				System.out.print("	");
+			}
+			System.out.println("-- "+child);
+			printScopeTree(child,depth+1);
+		}for (Scope method : root.getAllMethods()){
+			for (int i=0; i<depth+2; i++){
+				System.out.print("	");
+			}
+			System.out.println("-- "+method);
+			printScopeTree(method,depth+1);
+		}
+	}
 }
