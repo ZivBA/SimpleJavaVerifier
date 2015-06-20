@@ -46,8 +46,8 @@ public class Scope {
 	}
 
 	private ArrayList<String> stringToArray(Scanner sourceFile) {
-		ArrayList<String> tempArr = new ArrayList<>();
-		while (sourceFile.hasNext()) {
+		ArrayList<String> tempArr = new ArrayList<String>();
+		while (sourceFile.hasNextLine()) {
 			tempArr.add(sourceFile.nextLine());
 		}
 		return tempArr;
@@ -55,6 +55,7 @@ public class Scope {
 
 	private void recurScopeBuilder() throws InvalidScopeException {
 
+		//TODO fix infinite recursion with firstline being a method
 		Pattern p = Pattern.compile("\\{");
 		Pattern p2 = Pattern.compile("\\}");
 
@@ -65,13 +66,14 @@ public class Scope {
 			Matcher openBrack = p.matcher(line);
 			Matcher closeBrack = p2.matcher(line);
 
-			// save first line
 			if (openBrack.find()){
+				String firstLine = line;
 				ArrayList<String> tempArray = new ArrayList<>();
 				int bracketCounter = 1;
 				while (bracketCounter != 0){
 
-					tempArray.add(sourceFile.remove(sourceFile.indexOf(line)));
+					tempArray.add(line);
+					sourceIterator.remove();
 					line = sourceIterator.next();
 					openBrack.reset(line);
 					closeBrack.reset(line);
@@ -82,16 +84,30 @@ public class Scope {
 						bracketCounter--;
 					}
 				}
-				//insert first line
-				// if (if/while)
-				if(){
-					children.add(new Scope(tempArray,this));
+				//add final row to temparray
+				tempArray.add(line);
 
-				}
+				//get the position of the last line so marker could be inserted there
+				int positionForMarker = sourceFile.indexOf(line);
+
+				//remove last inserted row
+				sourceIterator.remove();
+
+				//add commented marker for method or condition clause
+				sourceFile.add(positionForMarker,"//"+firstLine.substring(0,line.length()-1));
+
+				Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(firstLine);
+				Matcher ifWhileMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
 				// if method
-				else if(){
-					methods.add(new Scope(tempArray,this));
-
+				if(methodMatch.matches()){
+					methods.add(new Scope(tempArray, this));
+				}
+				// if (if/while)
+				else if (ifWhileMatch.matches()){
+					children.add(new Scope(tempArray,this));
+				}
+				else {
+					throw new InvalidScopeException(firstLine);
 				}
 			}
 		}
@@ -109,15 +125,15 @@ public class Scope {
 
 		// is if|while?
 		if (conditionMatch.find()) {
-			type = conditionMatch.group(1);
+			type = firstWord;
 			conditions = conditionMatch.group(2);
-			sourceFile.remove(0);
+//			sourceFile.remove(0);
 		}
 		// is method?
 		else if (methodMatch.find()) {
-			type = methodMatch.group(1);
+			type = firstWord;
 			conditions = methodMatch.group(2);
-			sourceFile.remove(0);
+//			sourceFile.remove(0);
 		}
 		// is else?
 		else if (parent != null) {

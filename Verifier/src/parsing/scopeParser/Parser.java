@@ -25,7 +25,9 @@ public class Parser {
 	}
 
 
-	private void variableCheck(Variab)
+	private void variableCheck(){
+
+	}
 
 
 }

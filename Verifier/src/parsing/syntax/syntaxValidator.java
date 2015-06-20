@@ -36,7 +36,7 @@ public class syntaxValidator {
 	public static Scanner validate(File source) throws FileNotFoundException, syntaxException {
 		Scanner sourceFile = new Scanner(source);
 		sourceFile = cleanFile(sourceFile);
-		searchForMissingSyntax(sourceFile);
+		sourceFile = searchForMissingSyntax(sourceFile);
 		return sourceFile;
 	}
 
@@ -49,15 +49,16 @@ public class syntaxValidator {
 	private static Scanner cleanFile(Scanner sourceFile) throws FileNotFoundException {
 		//return a string representation of the scanned file
 		String stringFile = sourceFile.useDelimiter("\\A").next();
-		//delete all the legal comment from the file
-		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
 		//replace all the white space except the line skipping
 		stringFile = stringFile.replaceAll("[^\\S\n]+", " ");
 		//replace one or more line skipping by one line skipping
 		stringFile = stringFile.replaceAll(" ?\n+ ?", "\n");
 		stringFile = stringFile.replaceAll("\n+", "\n");
+		//delete all the legal comment from the file
+		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
 		//clean all the white space at the beginning and the end of the file
 		stringFile = stringFile.trim();
+		sourceFile.close();
 		return new Scanner(stringFile);
 	}
 
@@ -69,8 +70,9 @@ public class syntaxValidator {
 	 * @param sourceFile the file for syntax checking.
 	 * @throws syntaxException if there is any illegal syntax in place.
 	 */
-	private static void searchForMissingSyntax(Scanner sourceFile) throws syntaxException {
+	private static Scanner searchForMissingSyntax(Scanner sourceFile) throws syntaxException {
 		String currentLine;
+		String stringFile = sourceFile.useDelimiter("\\A").next();
 		int curlyBracketCounter = 0;
 		while (sourceFile.hasNextLine()) { // run over whole file, line by line
 			currentLine = sourceFile.nextLine();
@@ -86,7 +88,9 @@ public class syntaxValidator {
 						bracketCounter--;
 						break;
 					case (CURLY_OPEN): // may only be last char
-						if (i != lineAsCharArray.length - 1) throw new syntaxException();
+						if (i != lineAsCharArray.length - 1) {
+							throw new syntaxException();
+						}
 						else curlyBracketCounter++;
 						break;
 					case (CURLY_CLOSE): // has to have its own line
@@ -102,10 +106,14 @@ public class syntaxValidator {
 				}
 			} // after running over line, check that brackets are balanced and there is closer
 			char lastChar = lineAsCharArray[lineAsCharArray.length-1];
-			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END){
+			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
+					CURLY_CLOSE){
+				System.out.println(bracketCounter+" "+lastChar+ " " + currentLine);
 				throw new syntaxException();
 			}
 		} // after going over the file, check the curly brackets are balanced.
 		if (curlyBracketCounter != 0) throw new syntaxException();
+		sourceFile.close();
+		return new Scanner(stringFile);
 	}
 }
