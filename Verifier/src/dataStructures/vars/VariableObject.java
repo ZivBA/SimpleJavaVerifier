@@ -7,7 +7,7 @@ public class VariableObject {
 	private final String name;
 	private final String type;
 	private String value;
-	private boolean isFinal;
+	private boolean isFinal = false; // will change if given in constructor
 
 
 	/**

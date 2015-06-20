@@ -37,9 +37,10 @@ public class VariableStorage {
 	 */
 	public VariableObject addVar(VariableObject var) throws DuplicateAssignmentException {
 		// TODO if trying to add a variable and the name already exists throw exception
+		// TODO if the value is a variable name then check if it is initialized
 		if (varStore.containsKey(var.getName())) {
 			throw new parsing.exceptions.DuplicateAssignmentException(var);
-		}
+		} // else if var.getValue != initialized value throw new exception
 
 		return varStore.put(var.getName(), var);
 	}
