@@ -1,7 +1,7 @@
 package oop.ex6.main;
 
 import dataStructures.scope.Scope;
-import parsing.exceptions.DuplicateAssignmentException;
+import dataStructures.vars.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
 import parsing.exceptions.SyntaxException;
 import parsing.exceptions.invalidMethodException;
@@ -10,7 +10,6 @@ import parsing.syntax.SyntaxValidator;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Created by rooty on 6/13/15.

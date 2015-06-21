@@ -3,7 +3,7 @@ package dataStructures.scope;
 import dataStructures.vars.VariableObject;
 import dataStructures.vars.VariableStorage;
 import parsing.RegexDepot;
-import parsing.exceptions.DuplicateAssignmentException;
+import dataStructures.vars.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
 
 import java.util.ArrayList;

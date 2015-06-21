@@ -5,9 +5,11 @@ package parsing.scopeParser;
 
 import dataStructures.scope.Method;
 import dataStructures.scope.Scope;
+import dataStructures.vars.IllegalAssignmentException;
+import dataStructures.vars.VariableException;
 import dataStructures.vars.VariableObject;
 import parsing.RegexDepot;
-import parsing.exceptions.DuplicateAssignmentException;
+import dataStructures.vars.DuplicateAssignmentException;
 import parsing.exceptions.invalidMethodException;
 
 import java.util.ArrayList;
@@ -17,7 +19,7 @@ public class Parser {
 	private static final String ARG_DELIM = ",";
 
 	// recursive call root --> leaves, iterate throughout tree of scopes
-	public static void startParsing(Scope scope) throws DuplicateAssignmentException, invalidMethodException {
+	public static void startParsing(Scope scope) throws VariableException, invalidMethodException {
 		ArrayList<String> fileLines = scope.getSrc();
 
 		// parse all methods - store them in memory to be ready for method calls during procedural reading.
@@ -53,14 +55,14 @@ public class Parser {
 		} // finished running over all lines but the method lines
 	}
 
-	private static void methodArgParse(Method method) throws DuplicateAssignmentException {
+	private static void methodArgParse(Method method) throws VariableException {
 		String[] arguments = method.getArgString().split(ARG_DELIM);
 		for (String argument : arguments){
 			variableDeclareLine(method,argument+";");
 		}
 	}
 
-	private static void variableDeclareLine(Scope scope, String line) throws DuplicateAssignmentException {
+	private static void variableDeclareLine(Scope scope, String line) throws VariableException {
 		// get the type (make sure legal), for each sections between the comma's, check if assignment,
 		// make varObject and try to add it.
 		boolean isFinal = false;

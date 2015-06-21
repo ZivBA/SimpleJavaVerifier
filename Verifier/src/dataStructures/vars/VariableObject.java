@@ -4,6 +4,45 @@
 package dataStructures.vars;
 
 public class VariableObject {
+
+	/**
+	 * enumerator class nested in VariableObject class.
+	 * Holds the legal types and patterns of values that are allowed to be made in VariableObject.
+	 */
+	public enum VarTypeAndValue {
+		INT("int", "-?[0-9]+"),
+		DOUBLE("double", "-?[0-9]+(\\.[0-9]+)?"),
+		STRING("String", "\".*\""),
+		CHAR("char", "\'.\'"),
+		BOOLEAN("boolean", "((true|false)|(-?[0-9]+(\\.[0-9]+)?))");
+
+		private String type;
+		private String pattern;
+
+		//Constructor
+		VarTypeAndValue(String type, String pattern){
+			this.type = type;
+			this.pattern = pattern;
+		}
+
+		/**
+		 * Gets the type.
+		 * @return the type of the value
+		 */
+		public String getType() {
+			return type;
+		}
+
+		/**
+		 * Gets the pattern.
+		 * @return the pattern of the value
+		 */
+		public String getPattern() {
+			return pattern;
+		}
+	}
+
+
 	private final String name;
 	private final String type;
 	private String value;
@@ -18,11 +57,16 @@ public class VariableObject {
 	 * @param value
 	 * @param isFinal
 	 */
-	public VariableObject(String name, String type, String value, Boolean isFinal) {
+	public VariableObject(String name, String type, String value, Boolean isFinal)
+			throws IllegalAssignmentException {
 		this.name = name;
 		this.type = type;
 		this.value = value;
 		this.isFinal = isFinal;
+
+		if (!checkLegalValue()){
+			throw new IllegalAssignmentException();
+		}
 	}
 
 	/**
@@ -34,6 +78,21 @@ public class VariableObject {
 	public VariableObject(String name, String type) {
 		this.name = name;
 		this.type = type;
+	}
+
+	/**
+	 * Checks that the value string given to the constructor matches the legal patterns of the known types.
+	 * @return true if the pattern of the given value matches a known types value pattern.
+	 */
+	private boolean checkLegalValue(){
+		for (VarTypeAndValue item : VarTypeAndValue.values()){
+			if (this.type == item.getType()){ // validate that the type will match the pattern
+				if (this.value.matches(item.getPattern())){
+					return true;
+				} else return false;
+			}
+		}
+		return false;
 	}
 
 

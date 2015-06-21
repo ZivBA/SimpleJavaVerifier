@@ -16,6 +16,7 @@ public class Method extends Scope {
 
 	private String argString = "";
 	private VariableStorage arguments = new VariableStorage();
+
 	public Method(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
@@ -27,8 +28,6 @@ public class Method extends Scope {
 	private void parseParams() throws InvalidScopeException {
 
 		String firstLine = sourceFile.get(0);
-		String firstWord = firstLine.substring(0, firstLine.indexOf(" "));
-
 		Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(firstLine);
 		methodMatch.find();
 		name = methodMatch.group(1);
