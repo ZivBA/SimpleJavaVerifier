@@ -97,7 +97,8 @@ public class Parser {
 	}
 
 	private static void parseMethod(Scope scope) {
-	// var names in the arguments may be a general name
+		// var names in the arguments may be a general name
+		// dont forget to check for return; right before the }
 	}
 
 	private static void methodCallChecker(Scope scope, String line) {
