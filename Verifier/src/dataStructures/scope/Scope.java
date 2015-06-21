@@ -5,9 +5,10 @@ import dataStructures.vars.VariableStorage;
 import parsing.RegexDepot;
 import parsing.exceptions.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
-import sun.applet.Main;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -18,36 +19,49 @@ public class Scope {
 
 	private static final String MAINSCOPE = "Main";
 	// Data Members
-	private final VariableStorage varStore = new VariableStorage();
-	private ArrayList<String> sourceFile = new ArrayList<String>();
-	private Scope parent = null;
-	private LinkedList<Scope> children = new LinkedList<>();
-	private LinkedList<Scope> methods = new LinkedList<>();
+	protected final VariableStorage varStore = new VariableStorage();
+	protected ArrayList<String> sourceFile = new ArrayList<>();
+	protected Scope parent = null;
+	protected LinkedList<Scope> children = new LinkedList<>();
+	private LinkedList<Method> methods = new LinkedList<>();
 
 	private String type = null;
 	private String conditions = null;
-	private String methodName = null;
 
 
 	public Scope(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
-		scopeInit();
-	}
 
-	private void scopeInit() throws InvalidScopeException {
-		if (parent==null){
-			sourceFile.add(0," ");
-			sourceFile.add(sourceFile.size()," ");
-		}
-		checkType();
-		recurScopeBuilder();
 		//padd the main scope with spaces to accomodate for scopes that start with a void/if/while
+		if (parent == null) {
+			sourceFile.add(0, " ");
+			sourceFile.add(sourceFile.size(), " ");
+			type = MAINSCOPE;
+			recurScopeBuilder();
+
+		} else {
+			parseParams();
+			recurScopeBuilder();
+		}
 	}
 
-	private void recurScopeBuilder() throws InvalidScopeException {
+	public Scope() {
+	}
 
-		//TODO fix infinite recursion with firstline being a method
+	private void parseParams() throws InvalidScopeException {
+
+		String firstLine = sourceFile.get(0);
+		Matcher conditionMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
+		conditionMatch.find();
+		type = conditionMatch.group(1);
+		conditions = conditionMatch.group(2);
+		sourceFile.remove(0);
+
+	}
+
+	protected void recurScopeBuilder() throws InvalidScopeException {
+
 		Pattern p = Pattern.compile("\\{");
 		Pattern p2 = Pattern.compile("\\}");
 		ListIterator<String> sourceIterator = sourceFile.listIterator();
@@ -57,11 +71,11 @@ public class Scope {
 			Matcher openBrack = p.matcher(line);
 			Matcher closeBrack = p2.matcher(line);
 
-			if (openBrack.find()){
+			if (openBrack.find()) {
 				String firstLine = line;
 				ArrayList<String> tempArray = new ArrayList<>();
 				int bracketCounter = 1;
-				while (bracketCounter != 0){
+				while (bracketCounter != 0) {
 
 					tempArray.add(line);
 					sourceIterator.remove();
@@ -69,9 +83,9 @@ public class Scope {
 					openBrack.reset(line);
 					closeBrack.reset(line);
 
-					if (openBrack.find()){
+					if (openBrack.find()) {
 						bracketCounter++;
-					}else if (closeBrack.find()){
+					} else if (closeBrack.find()) {
 						bracketCounter--;
 					}
 				}
@@ -80,7 +94,7 @@ public class Scope {
 
 				//add commented marker for method or condition clause
 				sourceIterator.set(firstLine.substring(0, firstLine.indexOf('{')));
-				new Scope(tempArray,this);
+				createChild(tempArray, this);
 
 
 			}
@@ -89,48 +103,39 @@ public class Scope {
 
 	}
 
-	private void checkType() throws InvalidScopeException {
-
-		String firstLine = sourceFile.get(0);
-		String firstWord = firstLine.substring(0, firstLine.indexOf(" "));
+	protected void createChild(ArrayList<String> sourceBlock, Scope parent) throws InvalidScopeException {
+		String firstLine = sourceBlock.get(0);
 
 		Matcher conditionMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
 		Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(firstLine);
 
-		// is if|while?
-		if (conditionMatch.find()) {
-			type = conditionMatch.group(1);
-			conditions = conditionMatch.group(2);
-			sourceFile.remove(0);
-			parent.children.addLast(this);
-		}
-		// is method?
-		else if (methodMatch.find()) {
-			type = firstWord;
-			methodName = methodMatch.group(1);
-			conditions = methodMatch.group(2);
-			sourceFile.remove(0);
-			parent.methods.addLast(this);
-			}
-			// is else?
-		else{
-			if (parent != null) {
-				throw new InvalidScopeException(firstLine);
-			}
-
+		if (methodMatch.matches()) {
+			methods.addLast(new Method(sourceBlock, this));
+		} else if (conditionMatch.matches()) {
+			children.addLast(new Scope(sourceBlock, this));
+		} else {
+			throw new InvalidScopeException(firstLine);
 		}
 	}
 
 
-
 	/**
 	 * simple contain check for the Scope level - does it contain a variable "name".
+	 * <p/>
+	 * nope! elaborate contain check that recurses through parents.
 	 *
 	 * @param name
 	 * @return
 	 */
 	public VariableObject contains(String name) {
-		return varStore.getVar(name);
+		VariableObject temp = varStore.getVar(name);
+		if (temp != null) {
+			return temp;
+		}
+		if (parent != null) {
+			return parent.contains(name);
+		}
+		return null;
 	}
 
 	/**
@@ -154,15 +159,38 @@ public class Scope {
 	public Scope getChild(int index) {
 		return children.get(index);
 	}
-	public LinkedList<Scope> getAllChildren(){
+
+	public LinkedList<Scope> getAllChildren() {
 		return children;
 	}
-	public LinkedList<Scope> getAllMethods(){
+
+	public LinkedList<Method> getAllMethods() {
 		return methods;
 	}
 
-	public String toString(){
-		return "Type: "+ type+ ", Name: "+ methodName;
+
+	public String toString() {
+		return "Type: " + type + " conditions: " + conditions;
 	}
+
+	/**
+	 * Gets parent.
+	 *
+	 * @return Value of parent.
+	 */
+	public Scope getParent() {
+		return parent;
+	}
+
+
+	/**
+	 * Gets conditions.
+	 *
+	 * @return Value of conditions.
+	 */
+	public String getConditions() {
+		return conditions;
+	}
+
 }
 

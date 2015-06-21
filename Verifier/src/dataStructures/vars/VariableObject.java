@@ -87,4 +87,8 @@ public class VariableObject {
 
 	//##################################################################################
 
+
+	public boolean equals(VariableObject obj) {
+		return (this.getName().equals(obj.getName()));
+	}
 }

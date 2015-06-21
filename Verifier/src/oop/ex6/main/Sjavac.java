@@ -1,8 +1,10 @@
 package oop.ex6.main;
 
 import dataStructures.scope.Scope;
+import parsing.exceptions.DuplicateAssignmentException;
 import parsing.exceptions.InvalidScopeException;
 import parsing.exceptions.SyntaxException;
+import parsing.exceptions.invalidMethodException;
 import parsing.syntax.SyntaxValidator;
 
 import java.io.File;
@@ -52,6 +54,10 @@ public class Sjavac {
 		} catch (SyntaxException | InvalidScopeException e) {
 			System.err.println(INVALID_FILE);
 			System.out.println(e.getMessage());
+		} catch (DuplicateAssignmentException e) {
+			e.printStackTrace();
+		} catch (invalidMethodException e) {
+			e.printStackTrace();
 		}
 	}
 
