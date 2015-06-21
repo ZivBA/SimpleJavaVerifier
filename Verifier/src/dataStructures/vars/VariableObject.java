@@ -86,7 +86,7 @@ public class VariableObject {
 	 */
 	private boolean checkLegalValue(){
 		for (VarTypeAndValue item : VarTypeAndValue.values()){
-			if (this.type == item.getType()){ // validate that the type will match the pattern
+			if (this.type.equals(item.getType())){ // validate that the type will match the pattern
 				if (this.value.matches(item.getPattern())){
 					return true;
 				} else return false;
