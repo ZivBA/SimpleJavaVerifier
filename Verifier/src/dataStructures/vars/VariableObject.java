@@ -3,6 +3,8 @@
  */
 package dataStructures.vars;
 
+import java.util.regex.Pattern;
+
 public class VariableObject {
 
 	/**
@@ -29,8 +31,8 @@ public class VariableObject {
 		 * Gets the type.
 		 * @return the type of the value
 		 */
-		public String getType() {
-			return type;
+		public Pattern getType() {
+			return Pattern.compile(pattern);
 		}
 
 		/**
@@ -85,9 +87,10 @@ public class VariableObject {
 	 * @return true if the pattern of the given value matches a known types value pattern.
 	 */
 	private boolean checkLegalValue(){
+
 		for (VarTypeAndValue item : VarTypeAndValue.values()){
 			if (this.type.equals(item.getType())){ // validate that the type will match the pattern
-				if (this.value.matches(item.getPattern())){
+				if (Pattern.matches(item.getPattern(),value)){
 					return true;
 				} else return false;
 			}
@@ -112,8 +115,12 @@ public class VariableObject {
 	 *
 	 * @param value New value of value.
 	 */
-	public void setValue(String value) {
+	public void setValue(String value) throws IllegalAssignmentException {
+
 		this.value = value;
+		if (!checkLegalValue()){
+			throw new IllegalAssignmentException(name);
+		}
 	}
 
 	/**

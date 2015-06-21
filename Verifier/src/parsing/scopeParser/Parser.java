@@ -21,12 +21,9 @@ public class Parser {
 	// recursive call root --> leaves, iterate throughout tree of scopes
 	public static void startParsing(Scope scope) throws VariableException, invalidMethodException {
 		ArrayList<String> fileLines = scope.getSrc();
-
 		// parse all methods - store them in memory to be ready for method calls during procedural reading.
-		for (Method temp : scope.getAllMethods()) {
-			methodArgParse(temp);
-			startParsing(temp);
-		}
+
+
 		for (String line : fileLines) {
 			// read line
 
@@ -40,7 +37,7 @@ public class Parser {
 			if (variableDeclarationMatch.matches()) {
 				variableDeclareLine(scope, line);
 			} else if (variableAssignMatch.matches()) {
-				variableAssignLine(scope, line); // TODO will this cover method call line?
+				variableAssignLine(scope, line, variableAssignMatch); // TODO will this cover method call line?
 			} else if (methodCallMatch.matches()) {
 				methodCallChecker(scope, methodCallMatch);
 			} else if (methodScopeMatch.matches()) { // should match the pattern left in line
@@ -53,6 +50,11 @@ public class Parser {
 			}
 
 		} // finished running over all lines but the method lines
+
+		for (Method temp : scope.getAllMethods()) {
+			methodArgParse(temp);
+			startParsing(temp);
+		}
 	}
 
 	private static void methodArgParse(Method method) throws VariableException {
@@ -83,28 +85,8 @@ public class Parser {
 			Matcher varWithoutAssignment = RegexDepot.VARIABLE_PATTERN.matcher(var);
 
 			if (assignment.find()) {
-				String varName = assignment.group(1);
-				String value = assignment.group(2);
-				Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
-				VariableObject varObject;
-				if (varValueName.matches()) {
-					VariableObject matchedVar = scope.contains(value);
-					if (matchedVar != null) {
-						varObject = new VariableObject(varName, type, matchedVar.getValue(),
-								isFinal);
-					} else {
-						throw new IllegalAssignmentException(var);
-					}
-				} else {
-					varObject = new VariableObject(varName, type, value, isFinal);
-				}
-
-				try {
-					scope.addVar(varObject);
-				} catch (DuplicateAssignmentException e) {
-					// TODO this isnt necessarily a duplicate assignment
-					throw new DuplicateAssignmentException(varObject);
-				}
+				scope.addVar(new VariableObject(assignment.group(1),type, null,isFinal));
+				variableAssignLine(scope, line, assignment);
 			} else if (varWithoutAssignment.find()) {
 				if (isFinal) {
 					throw new IllegalAssignmentException(var);
@@ -112,30 +94,39 @@ public class Parser {
 				String name = varWithoutAssignment.group(0); // TODO no group == matched pattern?
 				VariableObject newVar = new VariableObject(name, type);
 
+				scope.addVar(newVar);
 
-				try {
-					scope.addVar(newVar);
-				} catch (DuplicateAssignmentException e) {
-					throw new DuplicateAssignmentException(newVar);
-				}
 			} else {
 				// throw new not valid declaration.
 			}
 		}
 	}
 
-	private static void variableAssignLine(Scope scope, String line) {
-		Matcher variableAssign = RegexDepot.VARIABLE_ASSIGNEMENT_PATTERN.matcher(line);
+	private static void variableAssignLine(Scope scope, String line, Matcher assignment) throws IllegalAssignmentException {
+		String varName = assignment.group(1);
+		String value = assignment.group(2);
+		Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
+
+		VariableObject varToAssign = scope.contains(varName);
+		VariableObject valueVar = scope.contains(value);
+
+		if (varToAssign == null){
+			throw new IllegalAssignmentException(varName);
+		}
+
+		if (!valueVar.getType().equals(varToAssign.getType())) {
+			throw new IllegalAssignmentException(varName);
+		} else {
+			varToAssign.setValue(value);
+		}
 
 
 	}
 
-	private static void parseMethod(Scope scope) {
-		// var names in the arguments may be a general name
-		// dont forget to check for return; right before the }
-	}
 
 	private static void methodCallChecker(Scope scope, Matcher lineMatcher) throws invalidMethodException {
+
+
 		String methodName = lineMatcher.group(1);
 		String[] arguments = lineMatcher.group(2).split(ARG_DELIM);
 

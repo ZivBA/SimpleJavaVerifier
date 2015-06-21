@@ -54,7 +54,8 @@ public class Sjavac {
 		} catch (invalidMethodException e) {
 			e.printStackTrace();
 		} catch (VariableException e) {
-			// cont?
+			System.out.println("error");
+			e.printStackTrace();
 		}
 	}
 

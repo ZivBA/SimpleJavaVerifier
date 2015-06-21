@@ -111,7 +111,7 @@ public class Scope {
 
 		if (methodMatch.matches()) {
 			methods.addLast(new Method(sourceBlock, this));
-		} else if (conditionMatch.matches()) {
+		} else if (conditionMatch.matches() && parent!=null) {
 			children.addLast(new Scope(sourceBlock, this));
 		} else {
 			throw new InvalidScopeException(firstLine);
