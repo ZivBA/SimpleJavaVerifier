@@ -44,11 +44,13 @@ public class Sjavac {
 
 			// for each exception type print the relevant number and message.
 		} catch (IOException e) {
-			System.err.println(IO_EXCEPTION);
+			System.out.println(IO_EXCEPTION);
 			System.err.println(e.getMessage());
+			e.printStackTrace();
 		} catch (SyntaxException | ScopeException | VariableException e) {
-			System.err.println(INVALID_FILE);
+			System.out.println(INVALID_FILE);
 			System.err.println(e.getMessage());
+			e.printStackTrace();
 		}
 	}
 

@@ -114,7 +114,6 @@ public class SyntaxValidator {
 			char lastChar = lineAsCharArray[lineAsCharArray.length - 1];
 			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
 					CURLY_CLOSE) {
-				System.out.println(bracketCounter + " " + lastChar + " " + currentLine);
 				throw new SyntaxException();
 			}
 		} // after going over the file, check the curly brackets are balanced.

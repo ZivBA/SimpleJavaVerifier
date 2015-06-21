@@ -14,7 +14,6 @@ import java.util.regex.Matcher;
  */
 public class Method extends Scope {
 	private static final int LINE_BEFORE_LAST = 2;
-	private static final String TYPE = "Method";
 	private String name = null;
 	private String argString = "";
 	private ArrayList<VariableObject> argList = new ArrayList<>();
@@ -22,7 +21,7 @@ public class Method extends Scope {
 	public Method(ArrayList<String> sourceFile, Scope parent) throws ScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
-		this.type = TYPE;
+		this.type = METHOD_TYPE;
 
 		checkReturnEndsMethod();
 		parseParams();
@@ -37,7 +36,7 @@ public class Method extends Scope {
 	private void checkReturnEndsMethod() throws ScopeException {
 		int returnLineIndex = sourceFile.size() - LINE_BEFORE_LAST;
 		String returnLine = sourceFile.get(returnLineIndex);
-		if (!returnLine.matches(RegexDepot.RETURN_PATTERN)) {
+		if (!returnLine.matches(RegexDepot.VALID_LINES)) {
 			throw new InvalidReturnException();
 		}
 	}
@@ -74,5 +73,13 @@ public class Method extends Scope {
 		return argList;
 	}
 
+	public VariableObject contains(String name) {
 
+		for (VariableObject var : argList){
+			if (var.getName().equals(name)){
+				return var;
+			}
+		}
+		return null;
+	}
 }

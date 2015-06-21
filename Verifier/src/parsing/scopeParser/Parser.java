@@ -23,6 +23,7 @@ public class Parser {
 	private static final String ARG_DELIM = " *, *";
 	private static final String CONDITION_DELIM = "\\|\\||&&";
 
+
 	// recursive call root --> leaves, iterate throughout tree of scopes
 	public static void startParsing(Scope scope) throws VariableException, ScopeException, SyntaxException {
 		ArrayList<String> fileLines = scope.getSrc();
@@ -43,16 +44,15 @@ public class Parser {
 				variableDeclareLine(scope, line);
 			} else if (variableAssignMatch.matches()) {
 				variableAssignLine(scope, line, variableAssignMatch);
-			} else if (methodCallMatch.matches()) {
+			} else if (methodCallMatch.find()) {
 				methodCallChecker(scope, methodCallMatch);
-			} else if (methodScopeMatch.matches()) { // should match the pattern left in line
-				// skip, this is parsed at end.
-				continue;
-			} else if (conditionScopeMatch.matches()) {
+			}  else if (conditionScopeMatch.matches()) {
 				if (!conditionsChecker(scope, conditionScopeMatch.group(2))) {
 					throw new InvalidConditionsException();
 				}
 				startParsing(scope.getAllChildren().pollFirst()); // FIFO
+			} else if (line.matches(RegexDepot.VALID_LINES)){
+				continue;
 			} else {
 				throw new SyntaxException();
 			}
@@ -103,7 +103,7 @@ public class Parser {
 
 			if (assignment.find()) {
 				scope.addVar(new VariableObject(assignment.group(1), type));
-				variableAssignLine(scope, line, assignment);
+				variableAssignLine(scope, var, assignment);
 			} else if (varWithoutAssignment.find()) {
 				if (isFinal) {
 					throw new IllegalAssignmentException(var);
@@ -126,16 +126,30 @@ public class Parser {
 		Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
 
 		VariableObject varToAssign = scope.contains(varName);
-		VariableObject valueVar = scope.contains(value);
+
+		VariableObject valueVar = null;
+		if (scope.isMethod()) {
+			valueVar = ((Method)scope).contains(value);
+			if (valueVar!=null && valueVar.getType().equals(varToAssign.getType())) return ;
+
+		}
+		if (valueVar==null) valueVar = scope.contains(value);
+
 
 		if (varToAssign == null) {
 			throw new IllegalAssignmentException(varName);
 		}
-
-		if (!valueVar.getType().equals(varToAssign.getType())) {
-			throw new IllegalAssignmentException(varName);
+		if (valueVar!= null) {
+			if (!valueVar.getType().equals(varToAssign.getType())) {
+				throw new IllegalAssignmentException(varName);
+			}else {
+				if (valueVar.getValue() == null){
+					throw new IllegalAssignmentException(varName);
+				}
+				return;
+			}
 		}
-
+		varToAssign.setValue(value);
 
 	}
 
@@ -170,6 +184,8 @@ public class Parser {
 
 
 		for (int i = 0; i < arguments.length; i++) {
+			if (arguments[i].length()==0) continue;
+
 			VariableObject checkedVarName = scope.contains(arguments[i]);
 
 			if (checkedVarName != null) {

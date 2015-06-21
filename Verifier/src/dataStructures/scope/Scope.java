@@ -19,6 +19,8 @@ import java.util.regex.Pattern;
 public class Scope {
 
 	private static final String MAINSCOPE = "Main";
+	protected static final String METHOD_TYPE = "Method";
+
 	// Data Members
 	protected final VariableStorage varStore = new VariableStorage();
 	protected ArrayList<String> sourceFile = new ArrayList<>();
@@ -39,10 +41,13 @@ public class Scope {
 			sourceFile.add(sourceFile.size(), " ");
 			type = MAINSCOPE;
 			recurScopeBuilder();
+			sourceFile.remove(0);
+			sourceFile.remove(sourceFile.size()-1);
 
 		} else {
 			parseParams();
 			recurScopeBuilder();
+
 		}
 	}
 
@@ -230,6 +235,11 @@ public class Scope {
 	 */
 	public String getConditions() {
 		return conditions;
+	}
+
+	public boolean isMethod(){
+		return (type.equals(METHOD_TYPE));
+
 	}
 
 }
