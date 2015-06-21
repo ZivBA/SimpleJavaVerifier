@@ -20,6 +20,7 @@ public class Method extends Scope {
 	public Method(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
+		this.type  = TYPE;
 
 		parseParams();
 		recurScopeBuilder();

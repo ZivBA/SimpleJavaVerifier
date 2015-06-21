@@ -65,7 +65,7 @@ public class VariableObject {
 		this.isFinal = isFinal;
 
 		if (!checkLegalValue()){
-			throw new IllegalAssignmentException();
+			throw new IllegalAssignmentException(name);
 		}
 	}
 

@@ -58,7 +58,9 @@ public class Parser {
 	private static void methodArgParse(Method method) throws VariableException {
 		String[] arguments = method.getArgString().split(ARG_DELIM);
 		for (String argument : arguments){
-			variableDeclareLine(method,argument+";");
+			if (argument.length()!=0) {
+				variableDeclareLine(method,argument+";");
+			}
 		}
 	}
 
@@ -78,11 +80,23 @@ public class Parser {
 		for (String var : namesAndAssignment){
 			Matcher assignment = RegexDepot.VARIABLE_ASSIGNEMENT_PATTERN.matcher(var);
 			Matcher varWithoutAssignment = RegexDepot.VARIABLE_PATTERN.matcher(var);
-			if (assignment.matches()){
+			if (assignment.find()){
 				String varName = assignment.group(1);
 				String value = assignment.group(2);
-				// TODO what if value is another var? handle this in variableObject/Store
-				VariableObject varObject = new VariableObject(varName, type, value, isFinal);
+				Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
+				VariableObject varObject;
+				if (varValueName.matches()){
+					VariableObject matchedVar = scope.contains(value);
+					if (matchedVar!= null){
+						varObject = new VariableObject(varName, type, matchedVar.getValue(),
+								isFinal);
+					} else{
+						throw new IllegalAssignmentException(var);
+					}
+				} else{
+					varObject = new VariableObject(varName, type, value, isFinal);
+				}
+
 				try {
 					scope.addVar(varObject);
 				} catch (DuplicateAssignmentException e) {
@@ -90,16 +104,18 @@ public class Parser {
 					throw new DuplicateAssignmentException(varObject);
 				}
 			}
-			else if (varWithoutAssignment.matches()){
+			else if (varWithoutAssignment.find()){
 				if (isFinal){
-					// throw new exception cannot declare final var w/o assignment
+					throw new IllegalAssignmentException(var);
 				}
 				String name = varWithoutAssignment.group(0); // TODO no group == matched pattern?
-				VariableObject varObject = new VariableObject(name, type);
+				VariableObject newVar = new VariableObject(name, type);
+
+
 				try {
-					scope.addVar(varObject);
+					scope.addVar(newVar);
 				} catch (DuplicateAssignmentException e) {
-					throw new DuplicateAssignmentException(varObject);
+					throw new DuplicateAssignmentException(newVar);
 				}
 			} else {
 				// throw new not valid declaration.
@@ -124,10 +140,9 @@ public class Parser {
 		Scope methodMatched = null;
 
 		while (scope!= null) {
-			for (Scope temp : scope.getAllMethods()) {
-				if (temp.toString().equals(methodName)) {
+			for (Method temp : scope.getAllMethods()) {
+				if (temp.getName().equals(methodName)) {
 					methodMatched = temp;
-
 					return;
 				}
 			}

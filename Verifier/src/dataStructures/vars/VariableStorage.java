@@ -1,6 +1,9 @@
 package dataStructures.vars;
 
+import parsing.RegexDepot;
+
 import java.util.HashMap;
+import java.util.regex.Matcher;
 
 /**
  * Created by rooty on 6/11/15.
@@ -12,7 +15,7 @@ public class VariableStorage {
 	private HashMap<String, VariableObject> varStore;
 
 	public VariableStorage() {
-		HashMap<String, VariableObject> varStore = new HashMap<>();
+		varStore = new HashMap<>();
 	}
 
 	// Methods

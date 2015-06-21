@@ -25,7 +25,7 @@ public class Scope {
 	protected LinkedList<Scope> children = new LinkedList<>();
 	private LinkedList<Method> methods = new LinkedList<>();
 
-	private String type = null;
+	protected String type = null;
 	private String conditions = null;
 
 
