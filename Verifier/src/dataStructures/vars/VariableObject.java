@@ -7,6 +7,11 @@ import java.util.regex.Pattern;
 
 import dataStructures.vars.exceptions.IllegalAssignmentException;
 
+/**
+ * Object that represents an object created in the sjava file given and represents its attributes.
+ * A VariableObject may only be of one of the legal types in sjava.
+ *
+ */
 public class VariableObject {
 
 	/**

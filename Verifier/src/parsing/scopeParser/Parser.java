@@ -38,12 +38,12 @@ public class Parser {
 			if (variableDeclarationMatch.matches()) {
 				variableDeclareLine(scope, line);
 			} else if (variableAssignMatch.matches()) {
-				variableAssignLine(scope, line, variableAssignMatch); // TODO will this cover method call line?
+				variableAssignLine(scope, line, variableAssignMatch);
 			} else if (methodCallMatch.matches()) {
 				methodCallChecker(scope, methodCallMatch);
 			} else if (methodScopeMatch.matches()) { // should match the pattern left in line
 				// skip, this is parsed at end.
-				continue; // TODO maybe check that the method scope exists
+				continue;
 			} else if (conditionScopeMatch.matches()) {
 				if (!conditionsChecker(scope, conditionScopeMatch.group(2))){
 					throw new InvalidConditionsException();
@@ -95,7 +95,7 @@ public class Parser {
 				if (isFinal) {
 					throw new IllegalAssignmentException(var);
 				}
-				String name = varWithoutAssignment.group(0); // TODO no group == matched pattern?
+				String name = varWithoutAssignment.group(0);
 				VariableObject newVar = new VariableObject(name, type);
 
 				scope.addVar(newVar);

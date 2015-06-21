@@ -119,9 +119,15 @@ public class SyntaxValidator {
 		} // after going over the file, check the curly brackets are balanced.
 		if (curlyBracketCounter != 0) throw new SyntaxException();
 	}
-	//TODO doc!!!!
+
+	/**
+	 * Turns the strings in the file from the scanner into an ArrayList of strings, where each
+	 * slot in the array holds a line from the original file.
+	 * @param sourceFile the file to turn to an ArrayList of strings
+	 * @return ArrayList of strings, compiled from the sourcefile
+	 */
 	private static ArrayList<String> stringToArray(Scanner sourceFile) {
-		ArrayList<String> tempArr = new ArrayList<String>();
+		ArrayList<String> tempArr = new ArrayList<>();
 		while (sourceFile.hasNextLine()) {
 			tempArr.add(sourceFile.nextLine());
 		}

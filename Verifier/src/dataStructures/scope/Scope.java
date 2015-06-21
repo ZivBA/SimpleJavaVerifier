@@ -46,6 +46,9 @@ public class Scope {
 		}
 	}
 
+	/**
+	 * Empty constructor for the method scope construction
+	 */
 	public Scope() {
 	}
 
@@ -167,23 +170,40 @@ public class Scope {
 
 	}
 
+	/**
+	 * Gets the sourceFile.
+	 * @return the sourceFile.
+	 */
 	public ArrayList<String> getSrc() {
 		return sourceFile;
 	}
 
+	/**
+	 * Gets a scope from the scopes data type
+	 * @param index the place in the data type where the scope exists.
+	 * @return scope
+	 */
 	public Scope getChild(int index) {
 		return children.get(index);
 	}
 
+	/**
+	 * Gets the LinkedList of the scopes composed.
+	 * @return LinkedList of the scopes composed.
+	 */
 	public LinkedList<Scope> getAllChildren() {
 		return children;
 	}
 
+	/**
+	 * Gets the LinkedList of the Method scopes composed.
+	 * @return LinkedList of the Method scopes composed.
+	 */
 	public LinkedList<Method> getAllMethods() {
 		return methods;
 	}
 
-
+	// TODO delete
 	public String toString() {
 		return "Type: " + type + " conditions: " + conditions;
 	}
