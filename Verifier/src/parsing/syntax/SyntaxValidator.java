@@ -40,6 +40,7 @@ public class SyntaxValidator {
 		sourceFile = cleanFile(sourceFile);
 		ArrayList<String> sourceFileArray = stringToArray(sourceFile);
 		searchForMissingSyntax(sourceFileArray);
+		sourceFile.close();
 		return sourceFileArray;
 	}
 
@@ -61,6 +62,7 @@ public class SyntaxValidator {
 		stringFile = stringFile.replaceAll("(\\A|\\n)//.*", "");
 		//clean all the white space at the beginning and the end of the file
 		stringFile = stringFile.trim();
+		sourceFile.close();
 		return new Scanner(stringFile);
 	}
 

@@ -1,4 +1,4 @@
-package dataStructures.vars;
+package dataStructures.vars.exceptions;
 
 /**
  * Created by user on 6/21/2015.

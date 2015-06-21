@@ -5,21 +5,22 @@ package parsing.scopeParser;
 
 import dataStructures.scope.Method;
 import dataStructures.scope.Scope;
-import dataStructures.vars.DuplicateAssignmentException;
-import dataStructures.vars.IllegalAssignmentException;
-import dataStructures.vars.VariableException;
+import dataStructures.scope.exceptions.*;
+import dataStructures.vars.exceptions.*;
 import dataStructures.vars.VariableObject;
+import static dataStructures.vars.VariableObject.VarTypeAndValue.BOOLEAN;
 import parsing.RegexDepot;
-import parsing.exceptions.invalidMethodException;
+import parsing.exceptions.SyntaxException;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
 public class Parser {
 	private static final String ARG_DELIM = ",";
+	private static final String CONDITION_DELIM = "\\|\\||&&";
 
 	// recursive call root --> leaves, iterate throughout tree of scopes
-	public static void startParsing(Scope scope) throws VariableException, invalidMethodException {
+	public static void startParsing(Scope scope) throws VariableException, ScopeException, SyntaxException {
 		ArrayList<String> fileLines = scope.getSrc();
 		// parse all methods - store them in memory to be ready for method calls during procedural reading.
 
@@ -44,9 +45,12 @@ public class Parser {
 				// skip, this is parsed at end.
 				continue; // TODO maybe check that the method scope exists
 			} else if (conditionScopeMatch.matches()) {
+				if (!conditionsChecker(scope, conditionScopeMatch.group(2))){
+					throw new InvalidConditionsException();
+				}
 				startParsing(scope.getAllChildren().pollFirst()); // FIFO
 			} else {
-				// throw new parsing exception
+				throw new SyntaxException();
 			}
 
 		} // finished running over all lines but the method lines
@@ -151,6 +155,27 @@ public class Parser {
 		String[] methodArguments = methodMatched.getConditions().split(ARG_DELIM);
 
 
+	}
+
+	/**
+	 * Checks if the given conditions are legal conditions.
+	 * @param scope the scope composing the variables.
+	 * @param conditionLine the string of conditions.
+	 * @return true if conditions given are legal, else false.
+	 */
+	private static boolean conditionsChecker(Scope scope, String conditionLine) {
+		String[] arguments = conditionLine.split(CONDITION_DELIM);
+
+		for (String arg : arguments){
+			if (arg.matches(BOOLEAN.getPattern())){ // arg is boolean string
+				continue;
+			} else if (arg.matches(RegexDepot.VARIABLE_NAME)){ // arg is variableObject
+				if (scope.isVarValueInitialized(arg)){
+					continue;
+				}
+			} else return false;
+		}
+		return true;
 	}
 
 

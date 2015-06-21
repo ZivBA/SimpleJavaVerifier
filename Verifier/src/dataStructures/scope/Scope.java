@@ -1,10 +1,10 @@
 package dataStructures.scope;
 
+import dataStructures.scope.exceptions.*;
 import dataStructures.vars.VariableObject;
 import dataStructures.vars.VariableStorage;
+import dataStructures.vars.exceptions.*;
 import parsing.RegexDepot;
-import dataStructures.vars.DuplicateAssignmentException;
-import parsing.exceptions.InvalidScopeException;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -29,7 +29,7 @@ public class Scope {
 	private String conditions = null;
 
 
-	public Scope(ArrayList<String> sourceFile, Scope parent) throws InvalidScopeException {
+	public Scope(ArrayList<String> sourceFile, Scope parent) throws ScopeException {
 		this.sourceFile = sourceFile;
 		this.parent = parent;
 
@@ -60,7 +60,7 @@ public class Scope {
 
 	}
 
-	protected void recurScopeBuilder() throws InvalidScopeException {
+	protected void recurScopeBuilder() throws ScopeException {
 
 		Pattern p = Pattern.compile("\\{");
 		Pattern p2 = Pattern.compile("\\}");
@@ -103,7 +103,7 @@ public class Scope {
 
 	}
 
-	protected void createChild(ArrayList<String> sourceBlock, Scope parent) throws InvalidScopeException {
+	protected void createChild(ArrayList<String> sourceBlock, Scope parent) throws ScopeException {
 		String firstLine = sourceBlock.get(0);
 
 		Matcher conditionMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
@@ -136,6 +136,21 @@ public class Scope {
 			return parent.contains(name);
 		}
 		return null;
+	}
+
+	/**
+	 * Checks if the given name is an initialized variable and if it has an assigned value.
+	 * @param name the name of the variableObject to check.
+	 * @return true if variable is initialized and has a value, else false.
+	 */
+	public boolean isVarValueInitialized(String name) {
+		VariableObject variable = contains(name);
+		if (variable != null){
+			if (variable.getValue() != null){
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

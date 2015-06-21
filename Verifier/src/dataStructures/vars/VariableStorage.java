@@ -1,9 +1,8 @@
 package dataStructures.vars;
 
-import parsing.RegexDepot;
+import dataStructures.vars.exceptions.DuplicateAssignmentException;
 
 import java.util.HashMap;
-import java.util.regex.Matcher;
 
 /**
  * Created by rooty on 6/11/15.
@@ -45,5 +44,6 @@ public class VariableStorage {
 
 		return varStore.put(var.getName(), var);
 	}
+
 
 }

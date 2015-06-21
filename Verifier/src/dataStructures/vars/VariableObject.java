@@ -5,6 +5,8 @@ package dataStructures.vars;
 
 import java.util.regex.Pattern;
 
+import dataStructures.vars.exceptions.IllegalAssignmentException;
+
 public class VariableObject {
 
 	/**

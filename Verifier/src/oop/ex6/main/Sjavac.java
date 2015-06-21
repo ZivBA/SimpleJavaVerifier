@@ -1,7 +1,8 @@
 package oop.ex6.main;
 
 import dataStructures.scope.Scope;
-import dataStructures.vars.VariableException;
+import dataStructures.scope.exceptions.*;
+import dataStructures.vars.exceptions.*;
 import parsing.exceptions.*;
 import parsing.syntax.SyntaxValidator;
 
@@ -26,9 +27,7 @@ public class Sjavac {
 		try {
 			if (args.length != VALID_ARGUMENTS || !args[0].endsWith(VALID_EXTENSION)) {
 				System.err.println(INVALID_FILE);
-
 			}else {
-
 				File sourceFile = new File(args[0]);
 
 				if (sourceFile.length() == 0) {
@@ -39,26 +38,19 @@ public class Sjavac {
 				Scope mainScope = new Scope(validatedSource, null);
 				printScopeTree(mainScope,0);
 				parsing.scopeParser.Parser.startParsing(mainScope);
-
 			}
 
 			// for each exception type print the relevant number and message.
 		} catch (IOException e) {
-
 			System.err.println(IO_EXCEPTION);
-			System.out.println( e.getMessage() );
-
-		} catch (SyntaxException | InvalidScopeException e) {
+			System.out.println(e.getMessage() );
+		} catch (SyntaxException | ScopeException | VariableException e) {
 			System.err.println(INVALID_FILE);
 			System.out.println(e.getMessage());
-		} catch (invalidMethodException e) {
-			e.printStackTrace();
-		} catch (VariableException e) {
-			System.out.println("error");
-			e.printStackTrace();
 		}
+		System.out.println(VALID_FILE); // program ends here if valid
 	}
-
+	// TODO delete this
 	private static void printScopeTree(Scope root, int depth){
 		for (int i=0; i<depth+1; i++){
 			System.out.print("	");

@@ -1,4 +1,4 @@
-package dataStructures.vars;
+package dataStructures.vars.exceptions;
 
 import dataStructures.vars.VariableObject;
 
