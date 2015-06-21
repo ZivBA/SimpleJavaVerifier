@@ -15,7 +15,6 @@ public class Method extends Scope {
 	private static final int LINE_BEFORE_LAST = 2;
 	private String name = null;
 	private static final String TYPE = "Method";
-	private static final String RETURN_LINE =" *return *;";
 
 	private String argString = "";
 	private VariableStorage arguments = new VariableStorage();
@@ -37,7 +36,7 @@ public class Method extends Scope {
 	private void checkReturnEndsMethod() throws ScopeException {
 		int returnLineIndex = sourceFile.size() - LINE_BEFORE_LAST;
 		String returnLine = sourceFile.get(returnLineIndex);
-		if (!returnLine.matches(RETURN_LINE)){
+		if (!returnLine.matches(RegexDepot.RETURN_PATTERN)){
 			throw new InvalidReturnException();
 		}
 	}
