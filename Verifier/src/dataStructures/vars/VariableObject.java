@@ -3,61 +3,18 @@
  */
 package dataStructures.vars;
 
-import java.util.regex.Pattern;
-
 import dataStructures.vars.exceptions.IllegalAssignmentException;
 
 /**
  * Object that represents an object created in the sjava file given and represents its attributes.
  * A VariableObject may only be of one of the legal types in sjava.
- *
  */
 public class VariableObject {
-
-	/**
-	 * enumerator class nested in VariableObject class.
-	 * Holds the legal types and patterns of values that are allowed to be made in VariableObject.
-	 */
-	public enum VarTypeAndValue {
-		INT("int", "-?[0-9]+"),
-		DOUBLE("double", "-?[0-9]+(\\.[0-9]+)?"),
-		STRING("String", "\".*\""),
-		CHAR("char", "\'.\'"),
-		BOOLEAN("boolean", "((true|false)|(-?[0-9]+(\\.[0-9]+)?))");
-
-		private String type;
-		private String pattern;
-
-		//Constructor
-		VarTypeAndValue(String type, String pattern){
-			this.type = type;
-			this.pattern = pattern;
-		}
-
-		/**
-		 * Gets the type.
-		 * @return the type of the value
-		 */
-		public Pattern getType() {
-			return Pattern.compile(pattern);
-		}
-
-		/**
-		 * Gets the pattern.
-		 * @return the pattern of the value
-		 */
-		public String getPattern() {
-			return pattern;
-		}
-	}
-
 
 	private final String name;
 	private final String type;
 	private String value;
 	private boolean isFinal = false; // will change if given in constructor
-
-
 	/**
 	 * Constructor one - gets all params for creation of initialized variable.
 	 *
@@ -73,10 +30,11 @@ public class VariableObject {
 		this.value = value;
 		this.isFinal = isFinal;
 
-		if (!checkLegalValue()){
+		if (!checkLegalValue()) {
 			throw new IllegalAssignmentException(name);
 		}
 	}
+
 
 	/**
 	 * Constructor two - gets all but Value param - creates an uninitialized variable.
@@ -91,22 +49,22 @@ public class VariableObject {
 
 	/**
 	 * Checks that the value string given to the constructor matches the legal patterns of the known types.
+	 *
 	 * @return true if the pattern of the given value matches a known types value pattern.
 	 */
-	private boolean checkLegalValue(){
-
-		for (VarTypeAndValue item : VarTypeAndValue.values()){
-			if (this.type.equals(item.getType())){ // validate that the type will match the pattern
-				if (Pattern.matches(item.getPattern(),value)){
+	private boolean checkLegalValue() {
+		if (this.value == null) {
+			return true;
+		}
+		for (VarTypeAndValue item : VarTypeAndValue.values()) {
+			if (this.type.equals(item.getType())) { // validate that the type will match the pattern
+				if (this.value.matches(item.getPattern())) {
 					return true;
 				} else return false;
 			}
 		}
 		return false;
 	}
-
-
-	//################ getters for all fields + setter for new value ###################
 
 	/**
 	 * Gets value.
@@ -117,6 +75,9 @@ public class VariableObject {
 		return value;
 	}
 
+
+	//################ getters for all fields + setter for new value ###################
+
 	/**
 	 * Sets new value.
 	 *
@@ -125,7 +86,9 @@ public class VariableObject {
 	public void setValue(String value) throws IllegalAssignmentException {
 
 		this.value = value;
-		if (!checkLegalValue()){
+
+
+		if (!checkLegalValue()) {
 			throw new IllegalAssignmentException(name);
 		}
 	}
@@ -158,10 +121,49 @@ public class VariableObject {
 		return isFinal;
 	}
 
+	public boolean equals(VariableObject obj) {
+		return (this.getName().equals(obj.getName()));
+	}
+
 	//##################################################################################
 
 
-	public boolean equals(VariableObject obj) {
-		return (this.getName().equals(obj.getName()));
+	/**
+	 * enumerator class nested in VariableObject class.
+	 * Holds the legal types and patterns of values that are allowed to be made in VariableObject.
+	 */
+	public enum VarTypeAndValue {
+		INT("int", "-?[0-9]+"),
+		DOUBLE("double", "-?[0-9]+(\\.[0-9]+)?"),
+		STRING("String", "\".*\""),
+		CHAR("char", "\'.\'"),
+		BOOLEAN("boolean", "((true|false)|(-?[0-9]+(\\.[0-9]+)?))");
+
+		private String type;
+		private String pattern;
+
+		//Constructor
+		VarTypeAndValue(String type, String pattern) {
+			this.type = type;
+			this.pattern = pattern;
+		}
+
+		/**
+		 * Gets the type.
+		 *
+		 * @return the type of the value
+		 */
+		public String getType() {
+			return type;
+		}
+
+		/**
+		 * Gets the pattern.
+		 *
+		 * @return the pattern of the value
+		 */
+		public String getPattern() {
+			return pattern;
+		}
 	}
 }

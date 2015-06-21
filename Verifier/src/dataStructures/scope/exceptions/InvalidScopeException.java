@@ -6,6 +6,6 @@ package dataStructures.scope.exceptions;
 public class InvalidScopeException extends ScopeException {
 
 	public InvalidScopeException(String s) {
-		 super("tried to create scope from the line: " + s + "\n but syntax is wrong");
+		super("tried to create scope from the line: " + s + "\n but syntax is wrong");
 	}
 }

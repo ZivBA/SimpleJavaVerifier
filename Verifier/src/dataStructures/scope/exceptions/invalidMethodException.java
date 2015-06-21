@@ -5,6 +5,6 @@ package dataStructures.scope.exceptions;
  */
 public class invalidMethodException extends ScopeException {
 	public invalidMethodException(String methodName) {
-		super("The method: "+methodName+" was not properly called or wasn't declared");
+		super("The method: " + methodName + " was not properly called or wasn't declared");
 	}
 }

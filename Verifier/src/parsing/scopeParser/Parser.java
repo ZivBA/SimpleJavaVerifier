@@ -5,18 +5,22 @@ package parsing.scopeParser;
 
 import dataStructures.scope.Method;
 import dataStructures.scope.Scope;
-import dataStructures.scope.exceptions.*;
-import dataStructures.vars.exceptions.*;
+import dataStructures.scope.exceptions.InvalidConditionsException;
+import dataStructures.scope.exceptions.ScopeException;
+import dataStructures.scope.exceptions.invalidMethodException;
 import dataStructures.vars.VariableObject;
-import static dataStructures.vars.VariableObject.VarTypeAndValue.BOOLEAN;
+import dataStructures.vars.exceptions.IllegalAssignmentException;
+import dataStructures.vars.exceptions.VariableException;
 import parsing.RegexDepot;
 import parsing.exceptions.SyntaxException;
 
 import java.util.ArrayList;
 import java.util.regex.Matcher;
 
+import static dataStructures.vars.VariableObject.VarTypeAndValue.BOOLEAN;
+
 public class Parser {
-	private static final String ARG_DELIM = ",";
+	private static final String ARG_DELIM = " *, *";
 	private static final String CONDITION_DELIM = "\\|\\||&&";
 
 	// recursive call root --> leaves, iterate throughout tree of scopes
@@ -45,7 +49,7 @@ public class Parser {
 				// skip, this is parsed at end.
 				continue;
 			} else if (conditionScopeMatch.matches()) {
-				if (!conditionsChecker(scope, conditionScopeMatch.group(2))){
+				if (!conditionsChecker(scope, conditionScopeMatch.group(2))) {
 					throw new InvalidConditionsException();
 				}
 				startParsing(scope.getAllChildren().pollFirst()); // FIFO
@@ -62,10 +66,19 @@ public class Parser {
 	}
 
 	private static void methodArgParse(Method method) throws VariableException {
+		if (!method.getArguments().isEmpty()) {
+			return;
+		}
 		String[] arguments = method.getArgString().split(ARG_DELIM);
+
 		for (String argument : arguments) {
+
 			if (argument.length() != 0) {
-				variableDeclareLine(method, argument + ";");
+				Matcher varDecMatch = RegexDepot.VARIABLE_DECLARATION_PATTERN.matcher(argument.trim());
+				if (!varDecMatch.matches()) {
+					throw new IllegalAssignmentException(argument);
+				}
+				method.addMethodArgument(new VariableObject(varDecMatch.group(3), varDecMatch.group(2)));
 			}
 		}
 	}
@@ -89,7 +102,7 @@ public class Parser {
 			Matcher varWithoutAssignment = RegexDepot.VARIABLE_PATTERN.matcher(var);
 
 			if (assignment.find()) {
-				scope.addVar(new VariableObject(assignment.group(1),type, null,isFinal));
+				scope.addVar(new VariableObject(assignment.group(1), type));
 				variableAssignLine(scope, line, assignment);
 			} else if (varWithoutAssignment.find()) {
 				if (isFinal) {
@@ -106,7 +119,8 @@ public class Parser {
 		}
 	}
 
-	private static void variableAssignLine(Scope scope, String line, Matcher assignment) throws IllegalAssignmentException {
+	private static void variableAssignLine(Scope scope, String line, Matcher assignment) throws
+			IllegalAssignmentException {
 		String varName = assignment.group(1);
 		String value = assignment.group(2);
 		Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
@@ -114,63 +128,75 @@ public class Parser {
 		VariableObject varToAssign = scope.contains(varName);
 		VariableObject valueVar = scope.contains(value);
 
-		if (varToAssign == null){
+		if (varToAssign == null) {
 			throw new IllegalAssignmentException(varName);
 		}
 
 		if (!valueVar.getType().equals(varToAssign.getType())) {
 			throw new IllegalAssignmentException(varName);
-		} else {
-			varToAssign.setValue(value);
 		}
 
 
 	}
 
 
-	private static void methodCallChecker(Scope scope, Matcher lineMatcher) throws invalidMethodException {
+	private static void methodCallChecker(Scope scope, Matcher lineMatcher) throws invalidMethodException,
+			VariableException {
 
 
 		String methodName = lineMatcher.group(1);
 		String[] arguments = lineMatcher.group(2).split(ARG_DELIM);
 
 
-		Scope methodMatched = null;
-
-		while (scope != null) {
-			for (Method temp : scope.getAllMethods()) {
+		Method methodMatched = null;
+		Scope tempScope = scope;
+		while (tempScope != null) {
+			for (Method temp : tempScope.getAllMethods()) {
 				if (temp.getName().equals(methodName)) {
 					methodMatched = temp;
-					return;
+					continue;
 				}
 			}
-			scope = scope.getParent();
+			tempScope = tempScope.getParent();
 
 		}
 
 		if (methodMatched == null) {
 			throw new invalidMethodException(methodName);
 		}
+		methodArgParse(methodMatched);
 
-		String[] methodArguments = methodMatched.getConditions().split(ARG_DELIM);
+		ArrayList<VariableObject> methodArguments = methodMatched.getArguments();
 
+
+		for (int i = 0; i < arguments.length; i++) {
+			VariableObject checkedVarName = scope.contains(arguments[i]);
+
+			if (checkedVarName != null) {
+				methodArguments.get(i).setValue(checkedVarName.getValue());
+
+			} else {
+				methodArguments.get(i).setValue(arguments[i]);
+			}
+		}
 
 	}
 
 	/**
 	 * Checks if the given conditions are legal conditions.
-	 * @param scope the scope composing the variables.
+	 *
+	 * @param scope         the scope composing the variables.
 	 * @param conditionLine the string of conditions.
 	 * @return true if conditions given are legal, else false.
 	 */
 	private static boolean conditionsChecker(Scope scope, String conditionLine) {
 		String[] arguments = conditionLine.split(CONDITION_DELIM);
 
-		for (String arg : arguments){
-			if (arg.matches(BOOLEAN.getPattern())){ // arg is boolean string
+		for (String arg : arguments) {
+			if (arg.matches(BOOLEAN.getPattern())) { // arg is boolean string
 				continue;
-			} else if (arg.matches(RegexDepot.VARIABLE_NAME)){ // arg is variableObject
-				if (scope.isVarValueInitialized(arg)){
+			} else if (arg.matches(RegexDepot.VARIABLE_NAME)) { // arg is variableObject
+				if (scope.isVarValueInitialized(arg)) {
 					continue;
 				}
 			} else return false;

@@ -1,9 +1,10 @@
 package dataStructures.scope;
 
-import dataStructures.scope.exceptions.*;
+import dataStructures.scope.exceptions.InvalidScopeException;
+import dataStructures.scope.exceptions.ScopeException;
 import dataStructures.vars.VariableObject;
 import dataStructures.vars.VariableStorage;
-import dataStructures.vars.exceptions.*;
+import dataStructures.vars.exceptions.DuplicateAssignmentException;
 import parsing.RegexDepot;
 
 import java.util.ArrayList;
@@ -23,9 +24,8 @@ public class Scope {
 	protected ArrayList<String> sourceFile = new ArrayList<>();
 	protected Scope parent = null;
 	protected LinkedList<Scope> children = new LinkedList<>();
-	private LinkedList<Method> methods = new LinkedList<>();
-
 	protected String type = null;
+	private LinkedList<Method> methods = new LinkedList<>();
 	private String conditions = null;
 
 
@@ -114,7 +114,7 @@ public class Scope {
 
 		if (methodMatch.matches()) {
 			methods.addLast(new Method(sourceBlock, this));
-		} else if (conditionMatch.matches() && parent!=null) {
+		} else if (conditionMatch.matches() && parent != null) {
 			children.addLast(new Scope(sourceBlock, this));
 		} else {
 			throw new InvalidScopeException(firstLine);
@@ -124,7 +124,7 @@ public class Scope {
 
 	/**
 	 * simple contain check for the Scope level - does it contain a variable "name".
-	 * <p/>
+	 * <p>
 	 * nope! elaborate contain check that recurses through parents.
 	 *
 	 * @param name
@@ -143,13 +143,14 @@ public class Scope {
 
 	/**
 	 * Checks if the given name is an initialized variable and if it has an assigned value.
+	 *
 	 * @param name the name of the variableObject to check.
 	 * @return true if variable is initialized and has a value, else false.
 	 */
 	public boolean isVarValueInitialized(String name) {
 		VariableObject variable = contains(name);
-		if (variable != null){
-			if (variable.getValue() != null){
+		if (variable != null) {
+			if (variable.getValue() != null) {
 				return true;
 			}
 		}
@@ -172,6 +173,7 @@ public class Scope {
 
 	/**
 	 * Gets the sourceFile.
+	 *
 	 * @return the sourceFile.
 	 */
 	public ArrayList<String> getSrc() {
@@ -180,6 +182,7 @@ public class Scope {
 
 	/**
 	 * Gets a scope from the scopes data type
+	 *
 	 * @param index the place in the data type where the scope exists.
 	 * @return scope
 	 */
@@ -189,6 +192,7 @@ public class Scope {
 
 	/**
 	 * Gets the LinkedList of the scopes composed.
+	 *
 	 * @return LinkedList of the scopes composed.
 	 */
 	public LinkedList<Scope> getAllChildren() {
@@ -197,6 +201,7 @@ public class Scope {
 
 	/**
 	 * Gets the LinkedList of the Method scopes composed.
+	 *
 	 * @return LinkedList of the Method scopes composed.
 	 */
 	public LinkedList<Method> getAllMethods() {

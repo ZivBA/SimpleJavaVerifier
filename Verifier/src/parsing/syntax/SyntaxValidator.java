@@ -46,6 +46,7 @@ public class SyntaxValidator {
 
 	/**
 	 * Cleans the file from any comments, redundant white spaces and line skips.
+	 *
 	 * @param sourceFile the Scanner composing the file to be cleaned.
 	 * @return Scanner composing the file after cleaning.
 	 * @throws FileNotFoundException if there is an I/O problem with the file.
@@ -71,6 +72,7 @@ public class SyntaxValidator {
 	 * Round brackets need to be balanced for each line.
 	 * Opening curly bracket and semicolon have to be at the end of line.
 	 * Closing curly bracket has to be the only character in its own line.
+	 *
 	 * @param sourceFile the file for syntax checking.
 	 * @throws SyntaxException if there is any illegal syntax in place.
 	 */
@@ -95,8 +97,7 @@ public class SyntaxValidator {
 					case (CURLY_OPEN): // may only be last char
 						if (i != lineAsCharArray.length - 1) {
 							throw new SyntaxException();
-						}
-						else curlyBracketCounter++;
+						} else curlyBracketCounter++;
 						break;
 					case (CURLY_CLOSE): // has to have its own line
 						if (lineAsCharArray.length != 1) throw new SyntaxException();
@@ -110,10 +111,10 @@ public class SyntaxValidator {
 					throw new SyntaxException(); // no opening brackets
 				}
 			} // after running over line, check that brackets are balanced and there is closer
-			char lastChar = lineAsCharArray[lineAsCharArray.length-1];
+			char lastChar = lineAsCharArray[lineAsCharArray.length - 1];
 			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
-					CURLY_CLOSE){
-				System.out.println(bracketCounter+" "+lastChar+ " " + currentLine);
+					CURLY_CLOSE) {
+				System.out.println(bracketCounter + " " + lastChar + " " + currentLine);
 				throw new SyntaxException();
 			}
 		} // after going over the file, check the curly brackets are balanced.
@@ -123,6 +124,7 @@ public class SyntaxValidator {
 	/**
 	 * Turns the strings in the file from the scanner into an ArrayList of strings, where each
 	 * slot in the array holds a line from the original file.
+	 *
 	 * @param sourceFile the file to turn to an ArrayList of strings
 	 * @return ArrayList of strings, compiled from the sourcefile
 	 */

@@ -6,6 +6,6 @@ package dataStructures.vars.exceptions;
 public class IllegalAssignmentException extends VariableException {
 
 	public IllegalAssignmentException(String var) {
-		super("Tried to create final variable without assignment for: "+var);
+		super("Tried to create final variable without assignment for: " + var);
 	}
 }

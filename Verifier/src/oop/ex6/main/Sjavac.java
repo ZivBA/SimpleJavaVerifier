@@ -1,9 +1,9 @@
 package oop.ex6.main;
 
 import dataStructures.scope.Scope;
-import dataStructures.scope.exceptions.*;
-import dataStructures.vars.exceptions.*;
-import parsing.exceptions.*;
+import dataStructures.scope.exceptions.ScopeException;
+import dataStructures.vars.exceptions.VariableException;
+import parsing.exceptions.SyntaxException;
 import parsing.syntax.SyntaxValidator;
 
 import java.io.File;
@@ -27,7 +27,7 @@ public class Sjavac {
 		try {
 			if (args.length != VALID_ARGUMENTS || !args[0].endsWith(VALID_EXTENSION)) {
 				System.err.println(INVALID_FILE);
-			}else {
+			} else {
 				File sourceFile = new File(args[0]);
 
 				if (sourceFile.length() == 0) {
@@ -36,38 +36,41 @@ public class Sjavac {
 
 				ArrayList<String> validatedSource = SyntaxValidator.validate(sourceFile);
 				Scope mainScope = new Scope(validatedSource, null);
-				printScopeTree(mainScope,0);
+//				printScopeTree(mainScope, 0);
 				parsing.scopeParser.Parser.startParsing(mainScope);
+				System.out.println(VALID_FILE); // program ends here if valid
+
 			}
 
 			// for each exception type print the relevant number and message.
 		} catch (IOException e) {
 			System.err.println(IO_EXCEPTION);
-			System.out.println(e.getMessage() );
+			System.err.println(e.getMessage());
 		} catch (SyntaxException | ScopeException | VariableException e) {
 			System.err.println(INVALID_FILE);
-			System.out.println(e.getMessage());
+			System.err.println(e.getMessage());
 		}
-		System.out.println(VALID_FILE); // program ends here if valid
 	}
+
 	// TODO delete this
-	private static void printScopeTree(Scope root, int depth){
-		for (int i=0; i<depth+1; i++){
+	private static void printScopeTree(Scope root, int depth) {
+		for (int i = 0; i < depth + 1; i++) {
 			System.out.print("	");
 		}
 //		System.out.println("Scope at depth "+depth+": "+ root);
-		for (Scope child : root.getAllChildren()){
-			for (int i=0; i<depth+2; i++){
+		for (Scope child : root.getAllChildren()) {
+			for (int i = 0; i < depth + 2; i++) {
 				System.out.print("	");
 			}
-			System.out.println("-- "+child);
-			printScopeTree(child,depth+1);
-		}for (Scope method : root.getAllMethods()){
-			for (int i=0; i<depth+2; i++){
+			System.out.println("-- " + child);
+			printScopeTree(child, depth + 1);
+		}
+		for (Scope method : root.getAllMethods()) {
+			for (int i = 0; i < depth + 2; i++) {
 				System.out.print("	");
 			}
-			System.out.println("-- "+method);
-			printScopeTree(method,depth+1);
+			System.out.println("-- " + method);
+			printScopeTree(method, depth + 1);
 		}
 	}
 }
