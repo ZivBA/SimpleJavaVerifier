@@ -12,6 +12,8 @@ import dataStructures.vars.VariableObject;
 import dataStructures.vars.exceptions.IllegalAssignmentException;
 import dataStructures.vars.exceptions.VariableException;
 import parsing.RegexDepot;
+import parsing.exceptions.InvalidNumOfArguments;
+import parsing.exceptions.ParsingException;
 import parsing.exceptions.SyntaxException;
 
 import java.util.ArrayList;
@@ -25,7 +27,7 @@ public class Parser {
 
 
 	// recursive call root --> leaves, iterate throughout tree of scopes
-	public static void startParsing(Scope scope) throws VariableException, ScopeException, SyntaxException {
+	public static void startParsing(Scope scope) throws VariableException, ScopeException, ParsingException {
 		ArrayList<String> fileLines = scope.getSrc();
 		// parse all methods - store them in memory to be ready for method calls during procedural reading.
 
@@ -43,7 +45,7 @@ public class Parser {
 			if (variableDeclarationMatch.matches()) {
 				variableDeclareLine(scope, line);
 			} else if (variableAssignMatch.matches()) {
-				variableAssignLine(scope, line, variableAssignMatch);
+				variableAssignLine(scope, false, variableAssignMatch); // TODO default bool?
 			} else if (methodCallMatch.find()) {
 				methodCallChecker(scope, methodCallMatch);
 			} else if (conditionScopeMatch.matches()) {
@@ -111,7 +113,7 @@ public class Parser {
 
 			if (assignment.matches()) {
 				scope.addVar(new VariableObject(assignment.group(1).trim(), type));
-				variableAssignLine(scope, var, assignment);
+				variableAssignLine(scope, isFinal, assignment);
 			} else if (varWithoutAssignment.matches()) {
 				if (isFinal) {
 					throw new IllegalAssignmentException(var);
@@ -127,7 +129,7 @@ public class Parser {
 		}
 	}
 
-	private static void variableAssignLine(Scope scope, String line, Matcher assignment) throws
+	private static void variableAssignLine(Scope scope, boolean isFinal, Matcher assignment) throws
 			VariableException {
 
 
@@ -136,21 +138,21 @@ public class Parser {
 		Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
 
 		VariableObject varToAssign = scope.contains(varName);
-		VariableObject valueVar = scope.contains(value);
+		VariableObject previousValueVar = scope.contains(value);
 
-		if (varToAssign == null) {
+		if (varToAssign == null || varToAssign.isFinal()) {
 			throw new IllegalAssignmentException(varName);
 		}
-		if (valueVar != null) {
-			if (!valueVar.getType().equals(varToAssign.getType())) {
+		if (previousValueVar != null) {
+			if (!previousValueVar.getType().equals(varToAssign.getType())) {
 				throw new IllegalAssignmentException(varName);
 			} else {
-				if (valueVar.getValue() == null) {
+				if (previousValueVar.getValue() == null) {
 					// if the valueVar is not initialized - check if it's a MethodArg var. if casting fails
 					// or if the var is not in args - throw exception. else skip value check by return;
 
 					try {
-						if (((Method) scope).getArguments().contains(valueVar)) return;
+						if (((Method) scope).getArguments().contains(previousValueVar)) return;
 					} catch (ClassCastException e) {
 						// we expect class cast exception, and continue on to throw assign exception.
 					}
@@ -161,16 +163,22 @@ public class Parser {
 		}
 		// use setValue's type checking to ensure valid assignment.
 		varToAssign.setValue(value);
+		if (isFinal){
+			varToAssign.setFinal(isFinal);
+		}
 
 	}
 
 
 	private static void methodCallChecker(Scope scope, Matcher lineMatcher) throws invalidMethodException,
-			VariableException, SyntaxException {
+			VariableException, ParsingException {
 
 
 		String methodName = lineMatcher.group(1);
-		String[] arguments = lineMatcher.group(2).split(ARG_DELIM);
+		String[] arguments = new String[0];
+		if (!lineMatcher.group(2).isEmpty()){
+			arguments = lineMatcher.group(2).trim().split(ARG_DELIM);
+		}
 
 
 		Method methodMatched = null;
@@ -192,7 +200,9 @@ public class Parser {
 		methodArgParse(methodMatched);
 
 		ArrayList<VariableObject> methodArguments = methodMatched.getArguments();
-
+		if (methodArguments.size() != arguments.length){
+			throw new InvalidNumOfArguments();
+		}
 
 		for (int i = 0; i < arguments.length; i++) {
 			if (arguments[i].length() == 0) continue;
@@ -223,8 +233,8 @@ public class Parser {
 			if (arg.matches(BOOLEAN.getPattern())) { // arg is boolean string
 				continue;
 			} else if (arg.matches(RegexDepot.VARIABLE_NAME)) { // arg is variableObject
-				VariableObject argumentObj = scope.contains(arg);
-				if (scope.isVarValueInitialized(arg) && argumentObj.getType().matches(RegexDepot
+				VariableObject argumentObj = scope.contains(arg.trim());
+				if (scope.isVarValueInitialized(arg.trim()) && argumentObj.getType().matches(RegexDepot
 						.VALID_BOOL_TYPES)) {
 					continue;
 				}

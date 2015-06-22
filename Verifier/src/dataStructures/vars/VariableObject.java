@@ -23,7 +23,7 @@ public class VariableObject {
 	 * @param value
 	 * @param isFinal
 	 */
-	public VariableObject(String name, String type, String value, Boolean isFinal)
+	public VariableObject(String name, String type, String value, boolean isFinal)
 			throws IllegalAssignmentException {
 		this.name = name;
 		this.type = type;
@@ -123,6 +123,10 @@ public class VariableObject {
 
 	public boolean equals(Object obj) {
 		return (((VariableObject)obj).getName().equals(name));
+	}
+
+	public void setFinal(boolean isFinal) {
+		this.isFinal = isFinal;
 	}
 
 

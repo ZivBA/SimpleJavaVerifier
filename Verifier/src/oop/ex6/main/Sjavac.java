@@ -3,6 +3,7 @@ package oop.ex6.main;
 import dataStructures.scope.Scope;
 import dataStructures.scope.exceptions.ScopeException;
 import dataStructures.vars.exceptions.VariableException;
+import parsing.exceptions.ParsingException;
 import parsing.exceptions.SyntaxException;
 import parsing.syntax.SyntaxValidator;
 
@@ -47,7 +48,7 @@ public class Sjavac {
 			System.out.println(IO_EXCEPTION);
 			System.err.println(e.getMessage());
 			e.printStackTrace();
-		} catch (SyntaxException | ScopeException | VariableException e) {
+		} catch (ParsingException | ScopeException | VariableException e) {
 			System.out.println(INVALID_FILE);
 			System.err.println(e.getMessage());
 			e.printStackTrace();
