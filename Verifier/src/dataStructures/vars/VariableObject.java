@@ -7,7 +7,7 @@ import dataStructures.vars.exceptions.IllegalAssignmentException;
 
 /**
  * The VarObj class represents an sjava variable. it's a generalized (not Generic!) form of a variable,
- * with minimal API - just name, type, value and an isFinal flag for each variable. </br>
+ * with minimal API - just name, type, value and an isFinal flag for each variable.
  * Variable values are stored as strings regardless of type, and an Enum of types and matching patterns is
  * stored for type checking.
  */

@@ -36,9 +36,9 @@ public class Scope {
 	protected final VariableStorage varStore = new VariableStorage();
 	protected ArrayList<String> sourceFile = new ArrayList<>();
 	protected Scope parent = null;
-	private final LinkedList<Scope> children = new LinkedList<>();
+	private final LinkedList<Scope> nestedConditionScopes = new LinkedList<>();
 	protected String type = null;
-	private final LinkedList<Method> methods = new LinkedList<>();
+	private final LinkedList<Method> nestedMethodScopes = new LinkedList<>();
 
 	/**
 	 * Recursive constructor - gets a bock of source code and a parent reference. iterates over the source
@@ -157,13 +157,13 @@ public class Scope {
 		Matcher conditionMatch = RegexDepot.CONDITION_PATTERN.matcher(firstLine);
 		Matcher methodMatch = RegexDepot.METHOD_PATTERN.matcher(firstLine);
 
-		// if it's a method, create a new Method object and add to current scope's methods storage
+		// if it's a method, create a new Method object and add to current scope's nestedMethodScopes storage
 		// if it's a conditional scope, create and add appropriatly. if none match then there's some
 		// uncaught syntax error with the scope - throw exception with the culprit line.
 		if (methodMatch.matches()) {
-			methods.addLast(new Method(sourceBlock, this));
+			nestedMethodScopes.addLast(new Method(sourceBlock, this));
 		} else if (conditionMatch.matches() && parent != null) {
-			children.addLast(new Scope(sourceBlock, this));
+			nestedConditionScopes.addLast(new Scope(sourceBlock, this));
 		} else {
 			throw new InvalidScopeException(firstLine);
 		}
@@ -234,7 +234,7 @@ public class Scope {
 	 * @return LinkedList of the scopes composed.
 	 */
 	public LinkedList<Scope> getAllChildren() {
-		return children;
+		return nestedConditionScopes;
 	}
 
 	/**
@@ -243,7 +243,7 @@ public class Scope {
 	 * @return LinkedList of the Method scopes composed.
 	 */
 	public LinkedList<Method> getAllMethods() {
-		return methods;
+		return nestedMethodScopes;
 	}
 
 	/**

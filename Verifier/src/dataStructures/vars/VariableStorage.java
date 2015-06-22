@@ -5,7 +5,7 @@ import dataStructures.vars.exceptions.DuplicateAssignmentException;
 import java.util.HashMap;
 
 /**
- * Data type that holds all the initialized variableObjects in the scope that composes it. </br>
+ * Data type that holds all the initialized variableObjects in the scope that composes it.
  * implemented using a HashMap to allow for quick querying according to the Variable name alone.
  */
 public class VariableStorage {
