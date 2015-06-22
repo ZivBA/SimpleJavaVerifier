@@ -4,6 +4,8 @@ import dataStructures.scope.exceptions.InvalidReturnException;
 import dataStructures.scope.exceptions.ScopeException;
 import dataStructures.vars.exceptions.DuplicateAssignmentException;
 import dataStructures.vars.VariableObject;
+import dataStructures.vars.exceptions.IllegalAssignmentException;
+import dataStructures.vars.exceptions.VariableException;
 import parsing.RegexDepot;
 
 import java.util.ArrayList;
@@ -61,10 +63,11 @@ public class Method extends Scope {
 		return argString;
 	}
 
-	public boolean addMethodArgument(VariableObject argument) throws DuplicateAssignmentException {
+	public boolean addArgumentToArgList(VariableObject argument) throws DuplicateAssignmentException {
 		if (argList.contains(argument)) {
 			throw new DuplicateAssignmentException(argument);
 		}
+		//varStore.addVar(argument); // TODO delete, this goes to varDeclareline
 		return argList.add(argument);
 
 	}
@@ -73,13 +76,19 @@ public class Method extends Scope {
 		return argList;
 	}
 
-	public VariableObject contains(String name) {
-
-		for (VariableObject var : argList){
-			if (var.getName().equals(name)){
-				return var;
+	public VariableObject contains(String name) throws VariableException {
+		VariableObject localVariable = varStore.getVar(name);
+		if ( localVariable == null){
+			VariableObject temp = parent.contains(name);
+			if (temp!= null){
+				VariableObject varFromParent = new VariableObject(temp.getName(),temp.getType(),temp
+						.getValue(),temp.isFinal());
+				varStore.addVar(varFromParent);
+				return varFromParent;
 			}
 		}
-		return null;
+		return localVariable;
 	}
+
 }
+

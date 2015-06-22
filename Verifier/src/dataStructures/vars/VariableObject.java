@@ -134,11 +134,11 @@ public class VariableObject {
 	 * Holds the legal types and patterns of values that are allowed to be made in VariableObject.
 	 */
 	public enum VarTypeAndValue {
-		INT("int", "-?[0-9]+ *"),
-		DOUBLE("double", "-?[0-9]+(\\.[0-9]+)? *"),
-		STRING("String", "\".*\" *"),
-		CHAR("char", "\'.\' *"),
-		BOOLEAN("boolean", "((true|false)|(-?[0-9]+(\\.[0-9]+)?)) *");
+		INT("int", "-?[0-9]+ *;?"),
+		DOUBLE("double", "-?[0-9]+(\\.[0-9]+)? *;?"),
+		STRING("String", "\".*\" *;?"),
+		CHAR("char", "\'.\' *;?"),
+		BOOLEAN("boolean", "( *(true|false)|(-?[0-9]+(\\.[0-9]+)?)) *;?");
 
 		private String type;
 		private String pattern;

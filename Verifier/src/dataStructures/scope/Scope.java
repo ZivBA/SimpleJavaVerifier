@@ -5,6 +5,8 @@ import dataStructures.scope.exceptions.ScopeException;
 import dataStructures.vars.VariableObject;
 import dataStructures.vars.VariableStorage;
 import dataStructures.vars.exceptions.DuplicateAssignmentException;
+import dataStructures.vars.exceptions.IllegalAssignmentException;
+import dataStructures.vars.exceptions.VariableException;
 import parsing.RegexDepot;
 
 import java.util.ArrayList;
@@ -135,7 +137,7 @@ public class Scope {
 	 * @param name
 	 * @return
 	 */
-	public VariableObject contains(String name) {
+	public VariableObject contains(String name) throws VariableException {
 		VariableObject temp = varStore.getVar(name);
 		if (temp != null) {
 			return temp;
@@ -152,7 +154,7 @@ public class Scope {
 	 * @param name the name of the variableObject to check.
 	 * @return true if variable is initialized and has a value, else false.
 	 */
-	public boolean isVarValueInitialized(String name) {
+	public boolean isVarValueInitialized(String name) throws VariableException {
 		VariableObject variable = contains(name);
 		if (variable != null) {
 			if (variable.getValue() != null) {

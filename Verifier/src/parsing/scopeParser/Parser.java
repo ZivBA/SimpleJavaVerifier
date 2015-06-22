@@ -46,12 +46,12 @@ public class Parser {
 				variableAssignLine(scope, line, variableAssignMatch);
 			} else if (methodCallMatch.find()) {
 				methodCallChecker(scope, methodCallMatch);
-			}  else if (conditionScopeMatch.matches()) {
+			} else if (conditionScopeMatch.matches()) {
 				if (!conditionsChecker(scope, conditionScopeMatch.group(2))) {
 					throw new InvalidConditionsException();
 				}
 				startParsing(scope.getAllChildren().pollFirst()); // FIFO
-			} else if (line.matches(RegexDepot.VALID_LINES)){
+			} else if (line.matches(RegexDepot.VALID_LINES)) {
 				continue;
 			} else {
 				throw new SyntaxException();
@@ -65,7 +65,7 @@ public class Parser {
 		}
 	}
 
-	private static void methodArgParse(Method method) throws VariableException {
+	private static void methodArgParse(Method method) throws VariableException, SyntaxException {
 		if (!method.getArguments().isEmpty()) {
 			return;
 		}
@@ -75,21 +75,29 @@ public class Parser {
 
 			if (argument.length() != 0) {
 				Matcher varDecMatch = RegexDepot.VARIABLE_DECLARATION_PATTERN.matcher(argument.trim());
+
+
 				if (!varDecMatch.matches()) {
 					throw new IllegalAssignmentException(argument);
 				}
-				method.addMethodArgument(new VariableObject(varDecMatch.group(3), varDecMatch.group(2)));
+				String argumentName = varDecMatch.group(3).trim();
+				String argumentType = varDecMatch.group(2).trim();
+
+				if (method.addArgumentToArgList(new VariableObject(argumentName,argumentType))) {
+					variableDeclareLine(method, argument);
+				}
+
 			}
 		}
 	}
 
-	private static void variableDeclareLine(Scope scope, String line) throws VariableException {
+	private static void variableDeclareLine(Scope scope, String line) throws VariableException, SyntaxException {
 		// get the type (make sure legal), for each sections between the comma's, check if assignment,
 		// make varObject and try to add it.
 		boolean isFinal = false;
 		Matcher variableDeclarationMatch = RegexDepot.VARIABLE_DECLARATION_PATTERN.matcher(line);
 		variableDeclarationMatch.find();
-		String type = variableDeclarationMatch.group(2);
+		String type = variableDeclarationMatch.group(2).trim();
 		if (variableDeclarationMatch.group(1) != null) { // if grp 1 exists it's final, else null
 			isFinal = true;
 		}
@@ -98,64 +106,67 @@ public class Parser {
 		String[] namesAndAssignment = variableDeclarationMatch.group(3).split(",");
 		for (String var : namesAndAssignment) {
 
-			Matcher assignment = RegexDepot.VARIABLE_ASSIGNEMENT_PATTERN.matcher(var);
-			Matcher varWithoutAssignment = RegexDepot.VARIABLE_PATTERN.matcher(var);
+			Matcher assignment = RegexDepot.VARIABLE_ASSIGNEMENT_PATTERN.matcher(var.trim());
+			Matcher varWithoutAssignment = RegexDepot.VARIABLE_PATTERN.matcher(var.trim());
 
-			if (assignment.find()) {
-				scope.addVar(new VariableObject(assignment.group(1), type));
+			if (assignment.matches()) {
+				scope.addVar(new VariableObject(assignment.group(1).trim(), type));
 				variableAssignLine(scope, var, assignment);
-			} else if (varWithoutAssignment.find()) {
+			} else if (varWithoutAssignment.matches()) {
 				if (isFinal) {
 					throw new IllegalAssignmentException(var);
 				}
-				String name = varWithoutAssignment.group(0);
+				String name = varWithoutAssignment.group(0).trim();
 				VariableObject newVar = new VariableObject(name, type);
 
 				scope.addVar(newVar);
 
 			} else {
-				// throw new not valid declaration.
+				throw new SyntaxException();
 			}
 		}
 	}
 
 	private static void variableAssignLine(Scope scope, String line, Matcher assignment) throws
-			IllegalAssignmentException {
+			VariableException {
+
+
 		String varName = assignment.group(1);
 		String value = assignment.group(2);
 		Matcher varValueName = RegexDepot.VARIABLE_PATTERN.matcher(value);
 
 		VariableObject varToAssign = scope.contains(varName);
-
-		VariableObject valueVar = null;
-		if (scope.isMethod()) {
-			valueVar = ((Method)scope).contains(value);
-			if (valueVar!=null && valueVar.getType().equals(varToAssign.getType())) return ;
-
-		}
-		if (valueVar==null) valueVar = scope.contains(value);
-
+		VariableObject valueVar = scope.contains(value);
 
 		if (varToAssign == null) {
 			throw new IllegalAssignmentException(varName);
 		}
-		if (valueVar!= null) {
+		if (valueVar != null) {
 			if (!valueVar.getType().equals(varToAssign.getType())) {
 				throw new IllegalAssignmentException(varName);
-			}else {
-				if (valueVar.getValue() == null){
+			} else {
+				if (valueVar.getValue() == null) {
+					// if the valueVar is not initialized - check if it's a MethodArg var. if casting fails
+					// or if the var is not in args - throw exception. else skip value check by return;
+
+					try {
+						if (((Method) scope).getArguments().contains(valueVar)) return;
+					} catch (ClassCastException e) {
+						// we expect class cast exception, and continue on to throw assign exception.
+					}
 					throw new IllegalAssignmentException(varName);
 				}
 				return;
 			}
 		}
+		// use setValue's type checking to ensure valid assignment.
 		varToAssign.setValue(value);
 
 	}
 
 
 	private static void methodCallChecker(Scope scope, Matcher lineMatcher) throws invalidMethodException,
-			VariableException {
+			VariableException, SyntaxException {
 
 
 		String methodName = lineMatcher.group(1);
@@ -184,7 +195,7 @@ public class Parser {
 
 
 		for (int i = 0; i < arguments.length; i++) {
-			if (arguments[i].length()==0) continue;
+			if (arguments[i].length() == 0) continue;
 
 			VariableObject checkedVarName = scope.contains(arguments[i]);
 
@@ -205,17 +216,19 @@ public class Parser {
 	 * @param conditionLine the string of conditions.
 	 * @return true if conditions given are legal, else false.
 	 */
-	private static boolean conditionsChecker(Scope scope, String conditionLine) {
+	private static boolean conditionsChecker(Scope scope, String conditionLine) throws VariableException {
 		String[] arguments = conditionLine.split(CONDITION_DELIM);
 
 		for (String arg : arguments) {
 			if (arg.matches(BOOLEAN.getPattern())) { // arg is boolean string
 				continue;
 			} else if (arg.matches(RegexDepot.VARIABLE_NAME)) { // arg is variableObject
-				if (scope.isVarValueInitialized(arg)) {
+				VariableObject argumentObj = scope.contains(arg);
+				if (scope.isVarValueInitialized(arg) && argumentObj.getType().matches(RegexDepot
+						.VALID_BOOL_TYPES)) {
 					continue;
 				}
-			} else return false;
+			} return false;
 		}
 		return true;
 	}
