@@ -3,7 +3,7 @@ package parsing;
 import java.util.regex.Pattern;
 
 /**
- * Created by rooty on 6/14/15.
+ * Storage for regex strings and patterns that are used in the SimpleJavaVerifier.
  */
 public class RegexDepot {
 
@@ -11,6 +11,8 @@ public class RegexDepot {
 	public static final String VARIABLE_ASSIGNMENT = "(" + VARIABLE_NAME + ") ?= ?(.+)";
 	public static final String VALID_LINES = " *return *;|void ([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?|}";
 	public static final String VALID_BOOL_TYPES = "boolean|double|int";
+	public static final String ARG_DELIM = " *, *";
+	public static final String CONDITION_DELIM = "\\|\\||&&";
 
 	public static final Pattern VARIABLE_PATTERN = Pattern.compile(VARIABLE_NAME);
 	public static final Pattern VARIABLE_DECLARATION_PATTERN =

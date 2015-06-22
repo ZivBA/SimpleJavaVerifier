@@ -1,7 +1,7 @@
 package parsing.exceptions;
 
 /**
- * Created by user on 6/22/2015.
+ * Thrown if invalid number of arguments were given to a method call.
  */
 public class InvalidNumOfArguments extends ParsingException {
 	public InvalidNumOfArguments() {

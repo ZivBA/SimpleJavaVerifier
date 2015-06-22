@@ -1,7 +1,7 @@
 package parsing.exceptions;
 
 /**
- * Created by rooty on 6/18/15.
+ * Syntax exception is thrown whenever an invalid syntax in recognized in the code.
  */
 public class SyntaxException extends ParsingException {
 	public SyntaxException() {
