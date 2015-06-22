@@ -1,7 +1,7 @@
 package dataStructures.vars.exceptions;
 
 /**
- * Created by user on 6/21/2015.
+ * Parent for all Var type exceptions..
  */
 public class VariableException extends Throwable {
 

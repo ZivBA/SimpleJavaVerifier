@@ -6,22 +6,26 @@ package dataStructures.vars;
 import dataStructures.vars.exceptions.IllegalAssignmentException;
 
 /**
- * Object that represents an object created in the sjava file given and represents its attributes.
- * A VariableObject may only be of one of the legal types in sjava.
+ * The VarObj class represents an sjava variable. it's a generalized (not Generic!) form of a variable,
+ * with minimal API - just name, type, value and an isFinal flag for each variable. </br>
+ * Variable values are stored as strings regardless of type, and an Enum of types and matching patterns is
+ * stored for type checking.
  */
 public class VariableObject {
 
+	// data members
 	private final String name;
 	private final String type;
 	private String value;
 	private boolean isFinal = false; // will change if given in constructor
+
 	/**
 	 * Constructor one - gets all params for creation of initialized variable.
 	 *
-	 * @param name
-	 * @param type
-	 * @param value
-	 * @param isFinal
+	 * @param name 	- Var name
+	 * @param type	- Type of var (int|bool|char|string|double)
+	 * @param value - String representation of the Var value
+	 * @param isFinal - boolean modifier - isFinal
 	 */
 	public VariableObject(String name, String type, String value, boolean isFinal)
 			throws IllegalAssignmentException {
@@ -30,7 +34,8 @@ public class VariableObject {
 		this.value = value;
 		this.isFinal = isFinal;
 
-		if (!checkLegalValue()) {
+		// checks validity of value Vs. type - if an improper assignment is detected, throws an exception.
+		if (checkForIllegalValue()) {
 			throw new IllegalAssignmentException(name);
 		}
 	}
@@ -39,8 +44,8 @@ public class VariableObject {
 	/**
 	 * Constructor two - gets all but Value param - creates an uninitialized variable.
 	 *
-	 * @param name
-	 * @param type
+	 * @param name 	- Var name
+	 * @param type	- Type of var (int|bool|char|string|double)
 	 */
 	public VariableObject(String name, String type) {
 		this.name = name;
@@ -52,19 +57,23 @@ public class VariableObject {
 	 *
 	 * @return true if the pattern of the given value matches a known types value pattern.
 	 */
-	private boolean checkLegalValue() {
+	private boolean checkForIllegalValue() {
 		if (this.value == null) {
-			return true;
+			return false;
 		}
+
 		for (VarTypeAndValue item : VarTypeAndValue.values()) {
-			if (this.type.equals(item.getType())) { // validate that the type will match the pattern
-				if (this.value.matches(item.getPattern())) {
-					return true;
-				} else return false;
+			if (this.type.equals(item.getType())) {	 // look for the matching type in the Enum VarTypeAndValue
+
+				// validate that the type will match the pattern
+				return !this.value.matches(item.getPattern());
 			}
 		}
-		return false;
+		return true;
 	}
+
+	//################ getters for all fields + setter for new value ###################
+
 
 	/**
 	 * Gets value.
@@ -74,9 +83,6 @@ public class VariableObject {
 	public String getValue() {
 		return value;
 	}
-
-
-	//################ getters for all fields + setter for new value ###################
 
 	/**
 	 * Sets new value.
@@ -88,7 +94,7 @@ public class VariableObject {
 		this.value = value;
 
 
-		if (!checkLegalValue()) {
+		if (checkForIllegalValue()) {
 			throw new IllegalAssignmentException(name);
 		}
 	}
@@ -113,7 +119,7 @@ public class VariableObject {
 	}
 
 	/**
-	 * Get if variable is final
+	 * Checks if variable is final
 	 *
 	 * @return true if final, else false.
 	 */
@@ -121,10 +127,21 @@ public class VariableObject {
 		return isFinal;
 	}
 
+	/**
+	 * overrides the Object default "contains" method to allow for custom comparison of VariableObjects.
+	 * this is necessary to allow for searching a LinkedList or ArrayList according to a variable name,
+	 * disregarding the value and type
+	 * @param obj	- the object to match
+	 * @return		- true if both objects have the same name.
+	 */
 	public boolean equals(Object obj) {
 		return (((VariableObject)obj).getName().equals(name));
 	}
 
+	/**
+	 * sets the Variable as final or unsets as necessary.
+	 * @param isFinal
+	 */
 	public void setFinal(boolean isFinal) {
 		this.isFinal = isFinal;
 	}
@@ -144,10 +161,10 @@ public class VariableObject {
 		CHAR("char", "\'.\' *;?"),
 		BOOLEAN("boolean", "( *(true|false)|(-?[0-9]+(\\.[0-9]+)?)) *;?");
 
-		private String type;
-		private String pattern;
+		private final String type;
+		private final String pattern;
 
-		//Constructor
+		// Mandatory Constructor
 		VarTypeAndValue(String type, String pattern) {
 			this.type = type;
 			this.pattern = pattern;

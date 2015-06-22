@@ -1,7 +1,7 @@
 package dataStructures.scope.exceptions;
 
 /**
- * Created by rooty on 6/21/15.
+ * inconsistency between method decleration (or no decleration at all) and method call
  */
 public class invalidMethodException extends ScopeException {
 	public invalidMethodException(String methodName) {

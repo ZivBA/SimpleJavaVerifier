@@ -3,7 +3,7 @@ package dataStructures.vars.exceptions;
 import dataStructures.vars.VariableObject;
 
 /**
- * Created by rooty on 6/13/15.
+ * if an attempt is made to add a variable with the same name to this scope..
  */
 public class DuplicateAssignmentException extends VariableException {
 

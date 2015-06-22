@@ -1,7 +1,7 @@
 package dataStructures.scope.exceptions;
 
 /**
- * Created by user on 6/21/2015.
+ * an invalid condition was encountered within a scope
  */
 public class InvalidConditionsException extends ScopeException {
 	public InvalidConditionsException() {

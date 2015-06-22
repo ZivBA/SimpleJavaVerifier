@@ -1,7 +1,7 @@
 package dataStructures.scope.exceptions;
 
 /**
- * Created by rooty on 6/14/15.
+ * Invalid syntax at one of the lines in the scope.
  */
 public class InvalidScopeException extends ScopeException {
 

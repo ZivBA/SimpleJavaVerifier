@@ -1,7 +1,8 @@
 package dataStructures.vars.exceptions;
 
 /**
- * Created by user on 6/21/2015.
+ * if an improper value is assigned to a variable, or if a reference variable is used without being
+ * initialized first..
  */
 public class IllegalAssignmentException extends VariableException {
 

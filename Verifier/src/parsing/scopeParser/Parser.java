@@ -61,7 +61,7 @@ public class Parser {
 				}
 				startParsing(scope.getAllChildren().pollFirst()); // parse nested conditional scope
 			} else if (line.matches(RegexDepot.VALID_LINES)) {
-				continue;
+				// pass;
 			} else {
 				throw new SyntaxException();
 			}

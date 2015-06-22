@@ -21,6 +21,5 @@ public class RegexDepot {
 	public static final Pattern METHOD_CALL_PATTERN = Pattern.compile("([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?;");
 	public static final Pattern CONDITION_PATTERN = Pattern.compile("(if|while) ?\\((.+)\\) ?\\{?");
 	public static final Pattern METHOD_PATTERN = Pattern.compile("void ([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?\\{");
-	public static final String METHOD_CALL_ARGUMENT = "An Argument Initialized in Method Decleration";
 
 }

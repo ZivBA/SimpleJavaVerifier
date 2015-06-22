@@ -51,7 +51,7 @@ public class SyntaxValidator {
 	 * @return Scanner composing the file after cleaning.
 	 * @throws FileNotFoundException if there is an I/O problem with the file.
 	 */
-	private static Scanner cleanFile(Scanner sourceFile) throws FileNotFoundException {
+	private static Scanner cleanFile(Scanner sourceFile) {
 		//return a string representation of the scanned file
 		String stringFile = sourceFile.useDelimiter("\\A").next();
 		//replace all the white space except the line skipping

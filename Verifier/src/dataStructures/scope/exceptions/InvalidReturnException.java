@@ -1,7 +1,7 @@
 package dataStructures.scope.exceptions;
 
 /**
- * Created by user on 6/21/2015.
+ * Missing or invalid return statement
  */
 public class InvalidReturnException extends ScopeException {
 	public InvalidReturnException() {
