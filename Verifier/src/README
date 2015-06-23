@@ -64,7 +64,7 @@ IllegalAssignmentException.java 	- extends VariableException. exception class fo
 ==============================================================================================================
 =								       			   Design                              					     =
 ==============================================================================================================
-Most of the design is described in the answeres below (see part 6.2).
+Most of the design is described in the answers below (see part 6.2).
 apart from that, we decided to create an object from the source code then pass it to the static parser,
 rather than create a parser object and pass it the code. this was a choice made purely out of perspective -
 the code is the "object" we are handling, and the parser is the "machine" that handles it. multiple codes
@@ -74,7 +74,27 @@ we decided to package all exceptions together by their respected parent classes 
 Parsing exceptions, etc.) and defined a parent exception for all the specific ones - this was done to
 maintain order in the project structure. an ordered project tree is a good project tree!
 
+Objects Hierarchy Diagram:
 
+
+												+--------------+
+								  +-----------> |VariableObject| <----+
+								  |             +----+---------+      |
+								  |                  ^                |
+							+-----+---------+        |                |
+							|VariableStorage|     +--+---+         +--+---+
+							+-----+---------+     |Parser|         |Method|
+								  ^               +------+         +------+
+								  +-------------------+  +----------^
+													  |  |
+							   +---------------+    +-+--++       +----------+
+							   |SyntaxValidator|    |Scope|       |RegexDepot|
+							   +---------------+    +-+---+       +----------+
+													  ^
+													  |
+												   +--+---+
+												   |Sjavac|
+												   +------+
 
 ==============================================================================================================
 =                            				 Implementation details                                          =
