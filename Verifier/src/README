@@ -4,137 +4,179 @@ yonilipman
 
 
 
-=============================
-=      File description     =
-=============================
-Scope.java	- describes the Scope object, holds the nestedScopes, nestedMethods, variables, etc.
-Method.java - extends Scope, describes the Method scope object. holds arguments and methods for parsing and
- 	overriding the scopes contains to suit the methods needs, etc.
-ScopeException.java - Parent exception class for all exceptions under the scope package.
-InvalidConditionsException.java - extends ScopeException. exception class for invalid conditions in
-	conditional scope.
-InvalidMethodException.java - extends ScopeException. exception class for invalid method class calls or if
-	method wasnt declared.
-InvalidReturnException.java - extends ScopeException. exception class for methods that dont end with return
-	statement.
-InvalidScopeException.java - extends ScopeException. exception class for invalid syntax in scope creation.
+==============================================================================================================
+=                                              File description                                              =
+==============================================================================================================
+Scope.java			- describes the Scope object, holds the nestedScopes, nestedMethods, variables, etc.
+
+Method.java 		- extends Scope, describes the Method scope object. holds arguments and methods for
+					parsing and overriding the scopes contains to suit the methods needs, etc.
+
+Sjavac.java 		- The main class that runs the program and catches and handles all the exceptions.
+
+RegexDepot.java 	- the class that acts as the storage of the numerous regex expressions used throughout the
+					program.
+
+SyntaxValidator.java- Parsing class that validates that the file has correct brackets in place and that
+					lines end legally using curly brackets or semicolons.
+
+Parser.java 		- Parsing class that parses the scopes given and handles all the different line
+					scenarios in a recursive manner, according to the order defined and by the tree data
+					type of scopes and methods.
 VariableObject.java - Represents an s-java variable. composes inner enum class for the allowed types and
-	value patterns for the different variables that the program supports.
-VariableStorage.java - Data type that holds all the initialized variableObjects in the scope that composes it.
-VariableException.java - Parent exception class for all exceptions under the vars package.
-DuplicateAssignmentException.java - extends VariableException. exception class for attempting to declare a
-	variable that already exists.
-IllegalAssignmentException.java - extends VariableException. exception class for attempting to assign an
-	illegal value or referencing a variable that wasnt initialized or dosent have an assigned value.
-Sjavac.java - The main class that runs the program and catches and handles all the exceptions.
-RegexDepot.java - the class that acts as the storage of the numerous regex expressions used throughout the
-	program.
-SyntaxValidator.java - Parsing class that validates that the file has correct brackets in place and that
-	lines end legally using curly brackets or semicolons.
-Parser.java - Parsing class that parses the scopes given and handles all the different line scenarios in a
-	recursive manner, according to the order defined and by the tree data type of scopes and methods.
-ParsingException.java - Parent exception class for all the exceptions under the parsing package.
-SyntaxException.java - extends ParsingException. throws exception if there was file has illegal syntax.
-InvalidNumOfArguments.java - extends ParsingException. throws exception if the number of given arguments
-	from the method call did not match the number of arguments that is required by the method.
+					value patterns for the different variables that the program supports.
 
-=============================
-=          Design           =
-=============================
+VariableStorage.java- Data type that holds all the initialized variableObjects in the scope that composes it.
 
+============================================ Exceptions ======================================================
+ParsingException.java				- Parent exception class for all the exceptions under the parsing package.
 
+SyntaxException.java 				- extends ParsingException. throws exception if there was file has
+									illegal syntax.
 
-=============================
-=   Implementation details   =
-=============================
+InvalidNumOfArguments.java 			- extends ParsingException. throws exception if the number of given
+									argumentsfrom the method call did not match the number of arguments
+									that is required by the method.
 
+ScopeException.java 				- Parent exception class for all exceptions under the scope package.
 
+InvalidConditionsException.java 	- extends ScopeException. exception class for invalid conditions in
+								  	conditional scope.
 
-=============================
-=   Answers to Questions    =
-=============================
- In the QUESTIONS file.
+InvalidMethodException.java 		- extends ScopeException. exception class for invalid method class
+									calls or if method wasnt declared.
 
- Question in part 6.1:
- How we decided to handle S-Java code errors:
- generally speaking, our code "assumes" that it is going to finish running - that is, whenever we start
- running any of our methods, we expect them to process the inormation correclty, as following methods will
- expect their output. in case we encounter any issues, we throw a context relevant exception which is
- caught in the Main method and the respected output is printed.
+InvalidReturnException.java 		- extends ScopeException. exception class for methods that dont end
+									with return statement.
 
- additionally, each exception holds a message describing the issue encountered, some exceptions go as far
- as printing the exact culprit (var name for assignment errors, method name for bad method calls, etc.)
+InvalidScopeException.java 			- extends ScopeException. exception class for invalid syntax in scope
+									creation.
 
- Questions in part 6.2:
- ----Regarding design choices:
+VariableException.java 				- Parent exception class for all exceptions under the vars package.
 
- we decided to not implement a general (generic, abstract or interface) Variable object and extend it to
- each type specifically, instead we opted to hold a single concrete Variable Object which holds an Enum
- inner class of the various types and their matching value patterns. this allowed us to simplify our
- design, hold all the variable value validations in a single class, and it allows for easier extensibility
- - adding a type or changing the validation is all handled in the same Enum class.
+DuplicateAssignmentException.java 	- extends VariableException. exception class for attempting to declare a
+									variable that already exists.
 
- before actually parsing the file, we first get rid of all the "junk" in it - removing comment lines,
- reducing multiple line endings to a single line ending, multiple white spaces into single spaces, etc.
+IllegalAssignmentException.java 	- extends VariableException. exception class for attempting to assign an
+ 									illegal value or referencing a variable that wasnt initialized or
+ 									dosent have an assigned value.
 
- we also decided to split the Parsing/Validation of the sjava file into several simpler components-
- our SyntaxValidator only checks the validity of the structure itself - making sure all parentheses and
- brackets are properly closed, that each line ends with one of the valid line enders ('{','}' or ';').
+==============================================================================================================
+=								       			   Design                              					     =
+==============================================================================================================
+Most of the design is described in the answeres below (see part 6.2).
+apart from that, we decided to create an object from the source code then pass it to the static parser,
+rather than create a parser object and pass it the code. this was a choice made purely out of perspective -
+the code is the "object" we are handling, and the parser is the "machine" that handles it. multiple codes
+exist but the parser is the same for all - hence no need for multiple instantiations.
 
- these procedures allowed us to quickly catch bad format in the files, without taking too much time or memory.
-
- as for the actual parsing - we decided to pre-process the source file into a Scope tree.
- this tree dataType is a custom implementation which holds two types of children - Condition scopes, and
- Method scopes. this allowed us to traverse the tree in a selective manner-
- we traverse only condition scopes, entering relevant Method scopes when we encounter a method Call-
- this allows us to maintain the order of variable assignment and decleration relative to the nested scopes
- (a variable cannot be used in an If clause if it wasnt declared in it or before it)
-
- finally - we process the remaining Method scopes (those for which there was no method call.)
-
- --- How would we implement new Var Types?
- as stated before, our code allows for additional types to be introduced simply by adding their name, and
- value matching pattern into the VarTypesAndValue Enum class (nested in the VariableObject). additionally,
- the Regex pattern for Variable Declaration in the RegexDepot must be updated to reflect the new type.
- this minimises the necessary changes to the code, and the validation/parsing process is completely
- oblivious to the change.
-
- --- How would we implement an Array object-
- Our code already has a certain type of array - our VariableStorage class holds set of VariableObjects.
- in order to implement a complete Array functionality - we would add a new decorator/facade class:
- a VariableArray class would compose a Java List (or any ordered collection), delegating most of the Array
- operations to that composed List, while maintaining type safety using the allowed variable types as
- defined by the Enum class, and defined per Array (one type per Array object).
-
- --- how would we import the methods and global variables of another S-Java file?
- as our code already holds the methods and variables for each scope in an array, copying from one file to
- the other should be fairly simple.
- assuming we have paresed two files, we have two MainScope objects.
- we need to implement four new methods:
- getAllMethodsFromScope(Scope source): this method will return the nestedMethodScopes array from the source
-  sjava file (it's mainScope object).
-
- addMethodsToMainScope(LinkedList<Method> source): this will accept an array of methods, and add them all to
-  the destination sjava file's mainScope object.
-
- getAllGlobalVars(Scope source): same as above, returns an array of objects from the source scope.
- addVarsToMainScope(VariableObject[] source): gets an array of VarObjects and inserts them one by one to
- the destination Scope's varStorage.
-
-  n.b - since nothing else was required, we're assuming the same type safety and duplicate decleration
-  rules as in the general program - i.e - importing an existing var name would cause an exception. this can
-   be handled in various ways, a new insertion method that would rename variables if a collision is
-   detected, skip them etc.
+we decided to package all exceptions together by their respected parent classes (Variable exceptions,
+Parsing exceptions, etc.) and defined a parent exception for all the specific ones - this was done to
+maintain order in the project structure. an ordered project tree is a good project tree!
 
 
- Questions in part 6.3:
- some of the regexes we used:
 
- VARIABLE_NAME = " ?[a-zA-Z]+[\\w]*|[_][\\w]+";
- VARIABLE_DECLARATION_PATTERN ="(final )?(int|double|String|boolean|char) ([^;]+);?"
+==============================================================================================================
+=                            				 Implementation details                                          =
+==============================================================================================================
 
- these two regex Strings were used to identify variable assignment and decleration-
- the decleration pattern allows us to find the lines where variable declerations are performed.
- the name pattern allows us to isolate the actual variable name from that line once found.
- (obviously more patterns are used to match other parts of the decleration..)
+Although we tried to keep the different modules and packages as closed as possible, and maintain strictest
+permission levels, there were several components that we felt must be made public and shared between the
+components:
 
+Exceptions - although each exception has a type and "native" location, a parsing exception could be
+encountered during Scope creation, and a Variable exception could be thrown from the parser. this means
+that we had to import some exceptions into packages they are not natively a part of.
+
+Regexs - since the excercise relies heavily on Regex Patterns, we decided to create the RegexDepot as a
+public class holding all the common strings, and to allow for every component to use it.
+
+
+
+==============================================================================================================
+=                                             Answers to Questions                                           =
+==============================================================================================================
+
+Question in part 6.1:
+How we decided to handle S-Java code errors:
+generally speaking, our code "assumes" that it is going to finish running - that is, whenever we start
+running any of our methods, we expect them to process the inormation correclty, as following methods will
+expect their output. in case we encounter any issues, we throw a context relevant exception which is
+caught in the Main method and the respected output is printed.
+
+additionally, each exception holds a message describing the issue encountered, some exceptions go as far
+as printing the exact culprit (var name for assignment errors, method name for bad method calls, etc.)
+
+Questions in part 6.2:
+----Regarding design choices:
+
+we decided to not implement a general (generic, abstract or interface) Variable object and extend it to
+each type specifically, instead we opted to hold a single concrete Variable Object which holds an Enum
+inner class of the various types and their matching value patterns. this allowed us to simplify our
+design, hold all the variable value validations in a single class, and it allows for easier extensibility
+- adding a type or changing the validation is all handled in the same Enum class.
+
+before actually parsing the file, we first get rid of all the "junk" in it - removing comment lines,
+reducing multiple line endings to a single line ending, multiple white spaces into single spaces, etc.
+
+we also decided to split the Parsing/Validation of the sjava file into several simpler components-
+our SyntaxValidator only checks the validity of the structure itself - making sure all parentheses and
+brackets are properly closed, that each line ends with one of the valid line enders ('{','}' or ';').
+
+these procedures allowed us to quickly catch bad format in the files, without taking too much time or memory.
+
+as for the actual parsing - we decided to pre-process the source file into a Scope tree.
+this tree dataType is a custom implementation which holds two types of children - Condition scopes, and
+Method scopes. this allowed us to traverse the tree in a selective manner-
+we traverse only condition scopes, entering relevant Method scopes when we encounter a method Call-
+this allows us to maintain the order of variable assignment and decleration relative to the nested scopes
+(a variable cannot be used in an If clause if it wasnt declared in it or before it)
+
+finally - we process the remaining Method scopes (those for which there was no method call.)
+
+--- How would we implement new Var Types?
+as stated before, our code allows for additional types to be introduced simply by adding their name, and
+value matching pattern into the VarTypesAndValue Enum class (nested in the VariableObject). additionally,
+the Regex pattern for Variable Declaration in the RegexDepot must be updated to reflect the new type.
+this minimises the necessary changes to the code, and the validation/parsing process is completely
+oblivious to the change.
+
+--- How would we implement an Array object-
+Our code already has a certain type of array - our VariableStorage class holds set of VariableObjects.
+in order to implement a complete Array functionality - we would add a new decorator/facade class:
+a VariableArray class would compose a Java List (or any ordered collection), delegating most of the Array
+operations to that composed List, while maintaining type safety using the allowed variable types as
+defined by the Enum class, and defined per Array (one type per Array object).
+
+--- how would we import the methods and global variables of another S-Java file?
+as our code already holds the methods and variables for each scope in an array, copying from one file to
+the other should be fairly simple.
+assuming we have paresed two files, we have two MainScope objects.
+we need to implement four new methods:
+getAllMethodsFromScope(Scope source): this method will return the nestedMethodScopes array from the source
+sjava file (it's mainScope object).
+
+addMethodsToMainScope(LinkedList<Method> source): this will accept an array of methods, and add them all to
+the destination sjava file's mainScope object.
+
+getAllGlobalVars(Scope source): same as above, returns an array of objects from the source scope.
+addVarsToMainScope(VariableObject[] source): gets an array of VarObjects and inserts them one by one to
+the destination Scope's varStorage.
+
+N.B - since nothing else was required, we're assuming the same type safety and duplicate decleration
+rules as in the general program - i.e - importing an existing var name would cause an exception. this can
+be handled in various ways, a new insertion method that would rename variables if a collision is
+detected, skip them etc.
+
+
+Questions in part 6.3:
+---some of the regexes we used:
+
+VARIABLE_NAME = " ?(?!"+RESERVED_WORDS+")[a-zA-Z]+[\\w]*|[_][\\w]+";
+VARIABLE_DECLARATION_PATTERN ="(final )?(int|double|String|boolean|char) ([^;]+);?"
+
+these two regex Strings were used to identify variable assignment and decleration-
+the decleration pattern allows us to find the lines where variable declerations are performed.
+the name pattern first ensures that the variable name is not a reservered word, then it allows us to
+isolate the actual variable name from that line once found.
+(obviously more patterns are used to match other parts of the decleration..)
