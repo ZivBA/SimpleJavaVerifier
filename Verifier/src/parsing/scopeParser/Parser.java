@@ -63,7 +63,7 @@ public class Parser {
 			} else if (line.matches(RegexDepot.VALID_LINES)) {
 				// pass;
 			} else {
-				throw new SyntaxException();
+				throw new SyntaxException(line);
 			}
 		} // finished running over all lines but the method lines
 		for (Method temp : scope.getAllMethods()) {
@@ -139,7 +139,7 @@ public class Parser {
 				String name = varWithoutAssignment.group(0).trim();
 				scope.addVar(new VariableObject(name, type));
 			} else { // no case matched, line has illegal syntax
-				throw new SyntaxException();
+				throw new SyntaxException(line);
 			}
 		}
 	}

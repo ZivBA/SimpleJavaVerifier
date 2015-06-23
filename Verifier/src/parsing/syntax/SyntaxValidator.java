@@ -78,7 +78,7 @@ public class SyntaxValidator {
 	 */
 	private static void searchForMissingSyntax(ArrayList<String> sourceFile) throws SyntaxException {
 
-		String currentLine;
+		String currentLine = sourceFile.get(0);
 		int curlyBracketCounter = 0;
 		Iterator<String> sourceIter = sourceFile.iterator();
 		while (sourceIter.hasNext()) { // run over whole file, line by line
@@ -96,28 +96,28 @@ public class SyntaxValidator {
 						break;
 					case (CURLY_OPEN): // may only be last char
 						if (i != lineAsCharArray.length - 1) {
-							throw new SyntaxException();
+							throw new SyntaxException(currentLine);
 						} else curlyBracketCounter++;
 						break;
 					case (CURLY_CLOSE): // has to have its own line
-						if (lineAsCharArray.length != 1) throw new SyntaxException();
+						if (lineAsCharArray.length != 1) throw new SyntaxException(currentLine);
 						else curlyBracketCounter--;
 						break;
 					case (SEMICOLON_END):
-						if (i != lineAsCharArray.length - 1) throw new SyntaxException();
+						if (i != lineAsCharArray.length - 1) throw new SyntaxException(currentLine);
 						break;
 				}
 				if (bracketCounter < 0 || curlyBracketCounter < 0) {
-					throw new SyntaxException(); // no opening brackets
+					throw new SyntaxException(currentLine); // no opening brackets
 				}
 			} // after running over line, check that brackets are balanced and there is closer
 			char lastChar = lineAsCharArray[lineAsCharArray.length - 1];
 			if (bracketCounter != 0 || lastChar != CURLY_OPEN && lastChar != SEMICOLON_END && lastChar !=
 					CURLY_CLOSE) {
-				throw new SyntaxException();
+				throw new SyntaxException(currentLine);
 			}
 		} // after going over the file, check the curly brackets are balanced.
-		if (curlyBracketCounter != 0) throw new SyntaxException();
+		if (curlyBracketCounter != 0) throw new SyntaxException(currentLine);
 	}
 
 	/**
