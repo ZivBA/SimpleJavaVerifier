@@ -22,7 +22,9 @@ public class RegexDepot {
 			Pattern.compile("(final )?("+VAR_TYPES+") ([^;]+);?");
 	public static final Pattern VARIABLE_ASSIGNEMENT_PATTERN = Pattern.compile(VARIABLE_ASSIGNMENT);
 	public static final Pattern METHOD_CALL_PATTERN = Pattern.compile("([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?;");
-	public static final Pattern CONDITION_PATTERN = Pattern.compile("("+CONDITION_TYPE+") ?\\((.+)\\) ?\\{?");
-	public static final Pattern METHOD_PATTERN = Pattern.compile("void (?!"+RESERVED_WORDS+")([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?\\{");
+	public static final Pattern CONDITION_PATTERN =
+			Pattern.compile("("+CONDITION_TYPE+") ?\\((.+)\\) ?\\{?");
+	public static final Pattern METHOD_PATTERN =
+			Pattern.compile("void (?!"+RESERVED_WORDS+")([a-zA-Z]+[\\w]*) ?\\((.*)\\) ?\\{");
 
 }
